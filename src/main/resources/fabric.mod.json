@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "modid",
+  "id": "herobrine",
   "version": "${version}",
 
-  "name": "Example Mod",
+  "name": "Herobrine Mod",
   "description": "This is an example description! Tell everyone what your mod is about!",
   "authors": [
     "LizIsTired"
@@ -19,11 +19,14 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.lizistired.starter.ExampleMod"
+      "net.lizistired.herobrine.ExampleMod"
+    ],
+    "client": [
+      "net.lizistired.herobrine.ExampleModClient"
     ]
   },
   "mixins": [
-    "modid.mixins.json"
+    "herobrine.mixins.json"
   ],
 
   "depends": {
