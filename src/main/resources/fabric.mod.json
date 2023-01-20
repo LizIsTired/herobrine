@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "herobrine",
+  "id": "herobrinereturns",
   "version": "${version}",
 
-  "name": "Herobrine Mod",
+  "name": "Herobrine Returns",
   "description": "This is an example description! Tell everyone what your mod is about!",
   "authors": [
     "LizIsTired"
@@ -14,19 +14,22 @@
   },
 
   "license": "MPL-2.0",
-  "icon": "assets/modid/icon.png",
+  "icon": "assets/herobrinereturns/icon.png",
 
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.lizistired.herobrine.ExampleMod"
+      "net.lizistired.herobrinereturns.HerobrineReturns"
     ],
     "client": [
-      "net.lizistired.herobrine.ExampleModClient"
+      "net.lizistired.herobrinereturns.HerobrineReturnsClient"
+    ],
+    "server": [
+      "net.lizistired.herobrinereturns.HerobrineReturnsServer"
     ]
   },
   "mixins": [
-    "herobrine.mixins.json"
+    "herobrinereturns.mixins.json"
   ],
 
   "depends": {

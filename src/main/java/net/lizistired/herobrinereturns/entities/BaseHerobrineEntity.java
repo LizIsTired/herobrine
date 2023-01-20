@@ -1,75 +1,60 @@
-package net.lizistired.herobrine.entities;
+package net.lizistired.herobrinereturns.entities;
 
-import net.lizistired.herobrine.ExampleMod;
+import net.lizistired.herobrinereturns.HerobrineReturns;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.TargetPredicate;
-import net.minecraft.entity.ai.goal.*;
+import net.minecraft.entity.ai.goal.ActiveTargetGoal;
+import net.minecraft.entity.ai.goal.FlyGoal;
+import net.minecraft.entity.ai.goal.LookAtEntityGoal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.boss.WitherEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.mob.*;
+import net.minecraft.entity.mob.Angerable;
+import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.FireballEntity;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtHelper;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.sound.BiomeMoodSound;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Position;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-import static net.lizistired.herobrine.ExampleMod.HEROBRINE;
-import static net.minecraft.sound.SoundEvents.AMBIENT_CAVE;
 
+public class BaseHerobrineEntity extends HostileEntity implements Angerable {
 
-public class Herobrine extends HostileEntity implements Angerable {
-
-    private static final TrackedData<Boolean> ANGRY = DataTracker.registerData(Herobrine.class, TrackedDataHandlerRegistry.BOOLEAN);
-    private static final TrackedData<Boolean> NO_GRAVITY = DataTracker.registerData(Herobrine.class, TrackedDataHandlerRegistry.BOOLEAN);
-    private static final TrackedData<Boolean> NO_DRAG = DataTracker.registerData(Herobrine.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Boolean> ANGRY = DataTracker.registerData(BaseHerobrineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Boolean> NO_GRAVITY = DataTracker.registerData(BaseHerobrineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Boolean> NO_DRAG = DataTracker.registerData(BaseHerobrineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private int angerTime;
     private int lastAngrySoundAge = Integer.MIN_VALUE;
     private int ageWhenTargetSet;
     @Nullable
     private UUID angryAt;
 
-    public Herobrine(EntityType<? extends HostileEntity> entityType, World world) {
+    public BaseHerobrineEntity(EntityType<? extends HostileEntity> entityType, World world) {
         super((EntityType<? extends HostileEntity>)entityType, world);
     }
     @Override
     protected void initGoals() {
         this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 500.0f, 1.0f));
         //this.goalSelector.add(1, new EatGrassGoal(this));
-        this.targetSelector.add(1, new TeleportTowardsPlayerGoal(this, this::shouldAngerAt));
+        //this.targetSelector.add(2, new TeleportTowardsPlayerGoal(this, this::shouldAngerAt));
+        this.goalSelector.add(1, new FlyGoal(this, 500));
         //this.goalSelector.add(8, new WanderAroundGoal(this, 0.23f));
         //this.goalSelector.add(8, new LookAroundGoal(this));
         this.initCustomGoals();
@@ -255,7 +240,7 @@ public class Herobrine extends HostileEntity implements Angerable {
         LightningEntity lightning = new LightningEntity(EntityType.LIGHTNING_BOLT, world.toServerWorld()); // Create the lightning bolt
         lightning.setPosition(this.getPos()); // Set its position. This will make the lightning bolt strike the player (probably not what you want)
         world.spawnEntity(lightning); // Spawn the lightning entity
-        ExampleMod.LOGGER.info("Herobrine has spawned!");
+        HerobrineReturns.LOGGER.info("Herobrine has spawned!");
         this.setCustomName(Text.translatable("entity.minecraft.herobrinenametag"));
 
         return super.initialize(world, difficulty, spawnReason, entityData, entityNbt);
@@ -263,7 +248,7 @@ public class Herobrine extends HostileEntity implements Angerable {
 
     class TeleportTowardsPlayerGoal
             extends ActiveTargetGoal<PlayerEntity> {
-        private final Herobrine herobrine;
+        private final BaseHerobrineEntity baseHerobrineEntity;
         @Nullable
         private PlayerEntity targetPlayer;
         private int lookAtPlayerWarmup;
@@ -272,16 +257,16 @@ public class Herobrine extends HostileEntity implements Angerable {
         private final TargetPredicate validTargetPredicate = TargetPredicate.createAttackable().ignoreVisibility();
         private final Predicate<LivingEntity> angerPredicate;
 
-        public TeleportTowardsPlayerGoal(Herobrine herobrine, @Nullable Predicate<LivingEntity> targetPredicate) {
-            super(herobrine, PlayerEntity.class, 10, false, false, targetPredicate);
-            this.herobrine = herobrine;
+        public TeleportTowardsPlayerGoal(BaseHerobrineEntity baseHerobrineEntity, @Nullable Predicate<LivingEntity> targetPredicate) {
+            super(baseHerobrineEntity, PlayerEntity.class, 10, false, false, targetPredicate);
+            this.baseHerobrineEntity = baseHerobrineEntity;
             this.angerPredicate = playerEntity -> isPlayerStaring((PlayerEntity)playerEntity) || shouldAngerAt((LivingEntity)playerEntity);
             this.staringPlayerPredicate = TargetPredicate.createAttackable().setBaseMaxDistance(this.getFollowRange()).setPredicate(this.angerPredicate);
         }
 
         @Override
         public boolean canStart() {
-            this.targetPlayer = this.herobrine.world.getClosestPlayer(this.staringPlayerPredicate, this.herobrine);
+            this.targetPlayer = this.baseHerobrineEntity.world.getClosestPlayer(this.staringPlayerPredicate, this.baseHerobrineEntity);
             return this.targetPlayer != null;
         }
 
@@ -303,10 +288,10 @@ public class Herobrine extends HostileEntity implements Angerable {
                 if (!this.angerPredicate.test(this.targetPlayer)) {
                     return false;
                 }
-                this.herobrine.lookAtEntity(this.targetPlayer, 10.0f, 10.0f);
+                this.baseHerobrineEntity.lookAtEntity(this.targetPlayer, 10.0f, 10.0f);
                 return true;
             }
-            if (this.targetEntity != null && this.validTargetPredicate.test(this.herobrine, this.targetEntity)) {
+            if (this.targetEntity != null && this.validTargetPredicate.test(this.baseHerobrineEntity, this.targetEntity)) {
                 return true;
             }
             return super.shouldContinue();
@@ -314,7 +299,7 @@ public class Herobrine extends HostileEntity implements Angerable {
 
         @Override
         public void tick() {
-            if (this.herobrine.getTarget() == null) {
+            if (this.baseHerobrineEntity.getTarget() == null) {
                 super.setTargetEntity(null);
             }
             if (this.targetPlayer != null) {
@@ -324,15 +309,15 @@ public class Herobrine extends HostileEntity implements Angerable {
                     super.start();
                 }
             } else {
-                if (this.targetEntity != null && !this.herobrine.hasVehicle()) {
-                    if (this.herobrine.isPlayerStaring((PlayerEntity)this.targetEntity)) {
-                        if (this.targetEntity.squaredDistanceTo(this.herobrine) > 16.0) {
-                                this.herobrine.world.playSound(this.herobrine.getX(), this.herobrine.getEyeY(), this.herobrine.getZ(), new BiomeMoodSound(SoundEvents.AMBIENT_CAVE, 0, 8, 2.0).getSound().value(), SoundCategory.HOSTILE, 2.5f, 1.0f, false);
-                            this.herobrine.teleportRandomly();
+                if (this.targetEntity != null && !this.baseHerobrineEntity.hasVehicle()) {
+                    if (this.baseHerobrineEntity.isPlayerStaring((PlayerEntity)this.targetEntity)) {
+                        if (this.targetEntity.squaredDistanceTo(this.baseHerobrineEntity) > 16.0) {
+                                this.baseHerobrineEntity.world.playSound(this.baseHerobrineEntity.getX(), this.baseHerobrineEntity.getEyeY(), this.baseHerobrineEntity.getZ(), new BiomeMoodSound(SoundEvents.AMBIENT_CAVE, 0, 8, 2.0).getSound().value(), SoundCategory.HOSTILE, 2.5f, 1.0f, false);
+                            this.baseHerobrineEntity.teleportRandomly();
                         }
                         this.ticksSinceUnseenTeleport = 0;
-                    } else if (this.targetEntity.squaredDistanceTo(this.herobrine) > 256.0 && this.ticksSinceUnseenTeleport++ >= this.getTickCount(30) && this.herobrine.teleportTo(this.targetEntity)) {
-                        this.herobrine.world.playSound(this.herobrine.getX(), this.herobrine.getEyeY(), this.herobrine.getZ(), new BiomeMoodSound(SoundEvents.AMBIENT_CAVE, 0, 8, 2.0).getSound().value(), SoundCategory.HOSTILE, 2.5f, 1.0f, false);
+                    } else if (this.targetEntity.squaredDistanceTo(this.baseHerobrineEntity) > 256.0 && this.ticksSinceUnseenTeleport++ >= this.getTickCount(30) && this.baseHerobrineEntity.teleportTo(this.targetEntity)) {
+                        this.baseHerobrineEntity.world.playSound(this.baseHerobrineEntity.getX(), this.baseHerobrineEntity.getEyeY(), this.baseHerobrineEntity.getZ(), new BiomeMoodSound(SoundEvents.AMBIENT_CAVE, 0, 8, 2.0).getSound().value(), SoundCategory.HOSTILE, 2.5f, 1.0f, false);
                         this.ticksSinceUnseenTeleport = 0;
                     }
                 }

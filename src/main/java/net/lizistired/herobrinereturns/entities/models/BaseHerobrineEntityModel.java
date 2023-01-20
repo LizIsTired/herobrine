@@ -1,25 +1,15 @@
-package net.lizistired.herobrine.entities;
+package net.lizistired.herobrinereturns.entities.models;
 
-import com.google.common.collect.ImmutableList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
+import net.lizistired.herobrinereturns.entities.BaseHerobrineEntity;
 import net.minecraft.client.model.*;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
-import net.minecraft.client.render.entity.model.CrossbowPosing;
-import net.minecraft.client.render.entity.model.EntityModel;
-import net.minecraft.client.render.entity.model.EntityModelPartNames;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.mob.HostileEntity;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.mob.ZombieEntity;
-import net.minecraft.scoreboard.AbstractTeam;
-@Environment(EnvType.CLIENT)
-public class HerobrineEntityModel extends BipedEntityModel<Herobrine> {
 
-    public HerobrineEntityModel(ModelPart modelPart) {
+@Environment(EnvType.CLIENT)
+public class BaseHerobrineEntityModel extends BipedEntityModel<BaseHerobrineEntity> {
+
+    public BaseHerobrineEntityModel(ModelPart modelPart) {
         super(modelPart);
     }
 
@@ -37,8 +27,8 @@ public class HerobrineEntityModel extends BipedEntityModel<Herobrine> {
     }
 
 
-    public void setAngles(Herobrine herobrineEntity, float f, float g, float h, float i, float j) {
-        super.setAngles(herobrineEntity, f, g, h, i, j);
+    public void setAngles(BaseHerobrineEntity baseHerobrineEntityEntity, float f, float g, float h, float i, float j) {
+        super.setAngles(baseHerobrineEntityEntity, f, g, h, i, j);
     }
 
     /*@Override

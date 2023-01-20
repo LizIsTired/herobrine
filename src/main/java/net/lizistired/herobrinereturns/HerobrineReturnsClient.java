@@ -1,17 +1,18 @@
-package net.lizistired.herobrine;
+package net.lizistired.herobrinereturns;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
-import net.lizistired.herobrine.entities.HerobrineEntityModel;
-import net.lizistired.herobrine.entities.HerobrineRenderer;
+import net.lizistired.herobrinereturns.entities.models.BaseHerobrineEntityModel;
+import net.lizistired.herobrinereturns.entities.renderers.BaseHerobrineEntityRenderer;
+import net.lizistired.herobrinereturns.utils.registry.RegisterEntities;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
-public class ExampleModClient implements ClientModInitializer {
+public class HerobrineReturnsClient implements ClientModInitializer {
     public static final EntityModelLayer MODEL_HEROBRINE_LAYER = new EntityModelLayer(new Identifier("minecraft", "herobrine"), "main");
     @Override
     public void onInitializeClient() {
@@ -24,10 +25,10 @@ public class ExampleModClient implements ClientModInitializer {
             return new CubeEntityRenderer(context);
         }); */
         // In 1.17, use EntityRendererRegistry.register (seen below) instead of EntityRendererRegistry.INSTANCE.register (seen above)
-        EntityRendererRegistry.register(ExampleMod.HEROBRINE, (context) -> {
-            return new HerobrineRenderer(context);
+        EntityRendererRegistry.register(RegisterEntities.HEROBRINE, (context) -> {
+            return new BaseHerobrineEntityRenderer(context);
         });
 
-        EntityModelLayerRegistry.registerModelLayer(MODEL_HEROBRINE_LAYER, HerobrineEntityModel::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(MODEL_HEROBRINE_LAYER, BaseHerobrineEntityModel::getTexturedModelData);
     }
 }
