@@ -12,7 +12,7 @@ import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
 public class ExampleModClient implements ClientModInitializer {
-    public static final EntityModelLayer MODEL_HEROBRINE_LAYER = new EntityModelLayer(new Identifier("herobrine", "herobrineentity"), "main");
+    public static final EntityModelLayer MODEL_HEROBRINE_LAYER = new EntityModelLayer(new Identifier("minecraft", "herobrine"), "main");
     @Override
     public void onInitializeClient() {
         /*
