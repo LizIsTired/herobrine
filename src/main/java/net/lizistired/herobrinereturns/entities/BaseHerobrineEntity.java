@@ -1,7 +1,9 @@
 package net.lizistired.herobrinereturns.entities;
 
+import net.lizistired.herobrinereturns.HerobrineJumpscareParticle;
 import net.lizistired.herobrinereturns.HerobrineReturns;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
@@ -17,11 +19,15 @@ import net.minecraft.entity.mob.Angerable;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.particle.ParticleEffect;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.sound.BiomeMoodSound;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -70,6 +76,7 @@ public class BaseHerobrineEntity extends HostileEntity implements Angerable {
             this.ageWhenTargetSet = 0;
             this.dataTracker.set(ANGRY, false);
         } else {
+            target.world.addParticle(HerobrineReturns.HEROBRINE_JUMPSCARE, true, target.getX(), target.getY(), target.getZ(), 0, 0, 0);
             this.ageWhenTargetSet = this.age;
             this.dataTracker.set(ANGRY, true);
         }

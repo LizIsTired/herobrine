@@ -3,6 +3,7 @@ package net.lizistired.herobrinereturns;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.lizistired.herobrinereturns.entities.models.BaseHerobrineEntityModel;
@@ -25,10 +26,10 @@ public class HerobrineReturnsClient implements ClientModInitializer {
             return new CubeEntityRenderer(context);
         }); */
         // In 1.17, use EntityRendererRegistry.register (seen below) instead of EntityRendererRegistry.INSTANCE.register (seen above)
-        EntityRendererRegistry.register(RegisterEntities.HEROBRINE, (context) -> {
-            return new BaseHerobrineEntityRenderer(context);
-        });
+        EntityRendererRegistry.register(RegisterEntities.HEROBRINE, BaseHerobrineEntityRenderer::new);
 
         EntityModelLayerRegistry.registerModelLayer(MODEL_HEROBRINE_LAYER, BaseHerobrineEntityModel::getTexturedModelData);
+
+        ParticleFactoryRegistry.getInstance().register(HerobrineReturns.HEROBRINE_JUMPSCARE, HerobrineJumpscareParticle.Factory::new);
     }
 }

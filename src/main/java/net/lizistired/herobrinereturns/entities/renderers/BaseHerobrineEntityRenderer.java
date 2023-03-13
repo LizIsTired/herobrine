@@ -11,13 +11,14 @@ import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
 public class BaseHerobrineEntityRenderer extends MobEntityRenderer<BaseHerobrineEntity, BaseHerobrineEntityModel> {
+    public static final Identifier TEXTURE = new Identifier("herobrinereturns", "textures/entity/herobrine/herobrine.png");
     public BaseHerobrineEntityRenderer(EntityRendererFactory.Context context) {
         super(context, new BaseHerobrineEntityModel(context.getPart(HerobrineReturnsClient.MODEL_HEROBRINE_LAYER)), 0.5f);
     }
 
     @Override
     public Identifier getTexture(BaseHerobrineEntity entity) {
-        return new Identifier("herobrinereturns", "textures/entity/herobrine/herobrine.png");
+        return TEXTURE;
     }
     /*protected boolean hasLabel(Herobrine herobrineEntity) {
         double d = this.dispatcher.getSquaredDistanceToCamera(herobrineEntity);

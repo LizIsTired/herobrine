@@ -6,6 +6,8 @@
   "mixins": [
   ],
   "client": [
+    "ClientPlayNetworkHandlerAccessor",
+    "ClientPlayNetworkHandlerMixin",
     "ScreenshotMixin"
   ],
   "injectors": {

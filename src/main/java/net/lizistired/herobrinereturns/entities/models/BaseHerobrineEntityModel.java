@@ -4,13 +4,17 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.lizistired.herobrinereturns.entities.BaseHerobrineEntity;
 import net.minecraft.client.model.*;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
+import net.minecraft.util.Identifier;
+
+import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
 public class BaseHerobrineEntityModel extends BipedEntityModel<BaseHerobrineEntity> {
 
-    public BaseHerobrineEntityModel(ModelPart modelPart) {
-        super(modelPart);
+    public BaseHerobrineEntityModel(ModelPart root) {
+        super(root);
     }
 
     public static TexturedModelData getTexturedModelData() {
@@ -25,7 +29,6 @@ public class BaseHerobrineEntityModel extends BipedEntityModel<BaseHerobrineEnti
         modelPartData.addChild("left_leg", ModelPartBuilder.create().uv(0, 16).mirrored().cuboid(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F), ModelTransform.pivot(1.9F, 12.0F,0.0F));
         return TexturedModelData.of(modelData, 64, 64);
     }
-
 
     public void setAngles(BaseHerobrineEntity baseHerobrineEntityEntity, float f, float g, float h, float i, float j) {
         super.setAngles(baseHerobrineEntityEntity, f, g, h, i, j);
