@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(ClientPlayNetworkHandler.class)
 public class ClientPlayNetworkHandlerMixin {
 
-    @Accessor
+    /*@Accessor
     MinecraftClient client;
 
     //@Inject(method = "onGameStateChange(Lnet/minecraft/network/packet/s2c/play/GameStateChangeS2CPacket;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;addParticle(Lnet/minecraft/particle/ParticleEffect;DDDDDD)V", shift = At.Shift.BY, by = 4))
@@ -38,5 +38,5 @@ public class ClientPlayNetworkHandlerMixin {
             System.out.println("Game state changed! Elder Guardian particle effect played from Elder Guardian entity. This is a Herobrine Returns mixin!");
         }
     }
-
+*/
 }

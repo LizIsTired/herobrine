@@ -8,6 +8,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public interface ClientPlayNetworkHandlerAccessor {
-    @Accessor
-    MinecraftClient client;
+    //@Accessor
+    //MinecraftClient client;
 }

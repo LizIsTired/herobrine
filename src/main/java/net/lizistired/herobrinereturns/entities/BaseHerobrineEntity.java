@@ -1,6 +1,6 @@
 package net.lizistired.herobrinereturns.entities;
 
-import net.lizistired.herobrinereturns.HerobrineJumpscareParticle;
+import net.lizistired.herobrinereturns.HerobrineJumpscareParticleGoofyAhhh;
 import net.lizistired.herobrinereturns.HerobrineReturns;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.particle.Particle;
@@ -12,6 +12,8 @@ import net.minecraft.entity.ai.goal.LookAtEntityGoal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageType;
+import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -22,6 +24,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.sound.BiomeMoodSound;
 import net.minecraft.sound.SoundCategory;
@@ -37,6 +40,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Predicate;
 
@@ -225,8 +229,8 @@ public class BaseHerobrineEntity extends HostileEntity implements Angerable {
 
     @Override
     public boolean damage(DamageSource source, float amount) {
-        if (!source.isOutOfWorld()) {
-           if (source.name == "player") {
+        if (!source.isOf(DamageTypes.OUT_OF_WORLD)) {
+           if (Objects.equals(source.getName(), "player")) {
                 //source.getSource().addVelocity(500,5,0);
                 //source.getSource().startRiding(this, true);
             }
