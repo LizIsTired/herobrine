@@ -1,4 +1,5 @@
 {
  "entity.minecraft.herobrine" : "§kevVakMroxkwfamtsZKuIkzQJofkIQqIxDTwCQmFNmXzThTUnKeBkYGaJUoSnSxKHXILJrrmYxtzLskyRIvNermPsOVdPqPvMtJHlhfennmceacbbQnzysQsQnKFdoABRWyauMrSicwnaCfIItlViZiNNfMzaVgJZHWRMlreFLGlxBdCRNKbpTGBIXFZRrjboIRaJqwmwzbXkoQwluICoxTLOlParHBHaIkerCZPewSKluPgOhHIqTLIUqoYuLqRzFvXqUleNOvzMIyOjyqQjwQUEnSpALypjmobRixock",
- "entity.minecraft.herobrinenametag" : "§kHerobrine"
+ "entity.minecraft.herobrinenametag" : "§kHerobrine",
+ "item.herobrinereturns.cursed_book" : "Cursed Book"
 }
