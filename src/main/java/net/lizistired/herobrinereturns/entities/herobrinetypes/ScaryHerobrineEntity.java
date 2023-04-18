@@ -6,6 +6,6 @@ import net.minecraft.world.World;
 
 public class ScaryHerobrineEntity extends BaseHerobrineEntity {
     public ScaryHerobrineEntity(EntityType<? extends BaseHerobrineEntity> entityType, World world) {
-        super((EntityType<? extends BaseHerobrineEntity>)entityType, world);
+        super(entityType, world);
     }
 }

@@ -6,9 +6,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.TargetPredicate;
-import net.minecraft.entity.ai.goal.ActiveTargetGoal;
-import net.minecraft.entity.ai.goal.FlyGoal;
-import net.minecraft.entity.ai.goal.LookAtEntityGoal;
+import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
@@ -19,6 +17,7 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.Angerable;
 import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleEffect;
@@ -26,6 +25,7 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.BiomeMoodSound;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -43,6 +43,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Predicate;
+
+import static net.lizistired.herobrinereturns.utils.registry.RegisterParticles.HEROBRINE_JUMPSCARE;
 
 
 public class BaseHerobrineEntity extends HostileEntity implements Angerable {
@@ -63,15 +65,15 @@ public class BaseHerobrineEntity extends HostileEntity implements Angerable {
     protected void initGoals() {
         this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 500.0f, 1.0f));
         //this.goalSelector.add(1, new EatGrassGoal(this));
-        //this.targetSelector.add(2, new TeleportTowardsPlayerGoal(this, this::shouldAngerAt));
-        this.goalSelector.add(1, new FlyGoal(this, 500));
+        this.targetSelector.add(2, new TeleportTowardsPlayerGoal(this, this::shouldAngerAt));
+        //this.goalSelector.add(1, new FlyGoal(this, 500));
         //this.goalSelector.add(8, new WanderAroundGoal(this, 0.23f));
         //this.goalSelector.add(8, new LookAroundGoal(this));
         this.initCustomGoals();
     }
     protected void initCustomGoals() {
         //this.goalSelector.add(2, new MeleeAttackGoal(this, 4f, true));
-        //this.targetSelector.add(2, new ActiveTargetGoal<PlayerEntity>((MobEntity)this, PlayerEntity.class, true));
+        this.targetSelector.add(2, new ActiveTargetGoal<PlayerEntity>((MobEntity)this, PlayerEntity.class, true));
     }
     @Override
     public void setTarget(@Nullable LivingEntity target) {
@@ -80,7 +82,7 @@ public class BaseHerobrineEntity extends HostileEntity implements Angerable {
             this.ageWhenTargetSet = 0;
             this.dataTracker.set(ANGRY, false);
         } else {
-            target.world.addParticle(HerobrineReturns.HEROBRINE_JUMPSCARE, true, target.getX(), target.getY(), target.getZ(), 0, 0, 0);
+            target.world.addParticle(HEROBRINE_JUMPSCARE, true, target.getX(), target.getY(), target.getZ(), 0, 0, 0);
             this.ageWhenTargetSet = this.age;
             this.dataTracker.set(ANGRY, true);
         }
@@ -246,7 +248,7 @@ public class BaseHerobrineEntity extends HostileEntity implements Angerable {
 
     @Override
     public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData, @Nullable NbtCompound entityNbt) {
-        setNoGravity(true);
+        //setNoGravity(true);
         //setNoDrag(true);
         LightningEntity lightning = new LightningEntity(EntityType.LIGHTNING_BOLT, world.toServerWorld()); // Create the lightning bolt
         lightning.setPosition(this.getPos()); // Set its position. This will make the lightning bolt strike the player (probably not what you want)
@@ -271,7 +273,7 @@ public class BaseHerobrineEntity extends HostileEntity implements Angerable {
         public TeleportTowardsPlayerGoal(BaseHerobrineEntity baseHerobrineEntity, @Nullable Predicate<LivingEntity> targetPredicate) {
             super(baseHerobrineEntity, PlayerEntity.class, 10, false, false, targetPredicate);
             this.baseHerobrineEntity = baseHerobrineEntity;
-            this.angerPredicate = playerEntity -> isPlayerStaring((PlayerEntity)playerEntity) || shouldAngerAt((LivingEntity)playerEntity);
+            this.angerPredicate = playerEntity -> isPlayerStaring((PlayerEntity) playerEntity) || shouldAngerAt((LivingEntity) playerEntity);
             this.staringPlayerPredicate = TargetPredicate.createAttackable().setBaseMaxDistance(this.getFollowRange()).setPredicate(this.angerPredicate);
         }
 
@@ -321,19 +323,21 @@ public class BaseHerobrineEntity extends HostileEntity implements Angerable {
                 }
             } else {
                 if (this.targetEntity != null && !this.baseHerobrineEntity.hasVehicle()) {
-                    if (this.baseHerobrineEntity.isPlayerStaring((PlayerEntity)this.targetEntity)) {
+                    if (this.baseHerobrineEntity.isPlayerStaring((PlayerEntity) this.targetEntity)) {
                         if (this.targetEntity.squaredDistanceTo(this.baseHerobrineEntity) > 16.0) {
-                                this.baseHerobrineEntity.world.playSound(this.baseHerobrineEntity.getX(), this.baseHerobrineEntity.getEyeY(), this.baseHerobrineEntity.getZ(), new BiomeMoodSound(SoundEvents.AMBIENT_CAVE, 0, 8, 2.0).getSound().value(), SoundCategory.HOSTILE, 2.5f, 1.0f, false);
+                            HerobrineReturns.LOGGER.info("Herobrine has teleported!");
+                            targetEntity.world.addImportantParticle(HEROBRINE_JUMPSCARE.getType(), true, ((ServerPlayerEntity)targetEntity).getX(), ((ServerPlayerEntity)targetEntity).getY(), ((ServerPlayerEntity)targetEntity).getZ(), 0.0D, 0.0D, 0.0D);
+                            this.baseHerobrineEntity.world.playSound(this.baseHerobrineEntity.getX(), this.baseHerobrineEntity.getEyeY(), this.baseHerobrineEntity.getZ(), new BiomeMoodSound(SoundEvents.AMBIENT_CAVE, 0, 8, 2.0).getSound().value(), SoundCategory.HOSTILE, 2.5f, 1.0f, false);
                             this.baseHerobrineEntity.teleportRandomly();
                         }
-                        this.ticksSinceUnseenTeleport = 0;
-                    } else if (this.targetEntity.squaredDistanceTo(this.baseHerobrineEntity) > 256.0 && this.ticksSinceUnseenTeleport++ >= this.getTickCount(30) && this.baseHerobrineEntity.teleportTo(this.targetEntity)) {
-                        this.baseHerobrineEntity.world.playSound(this.baseHerobrineEntity.getX(), this.baseHerobrineEntity.getEyeY(), this.baseHerobrineEntity.getZ(), new BiomeMoodSound(SoundEvents.AMBIENT_CAVE, 0, 8, 2.0).getSound().value(), SoundCategory.HOSTILE, 2.5f, 1.0f, false);
-                        this.ticksSinceUnseenTeleport = 0;
                     }
+                    this.ticksSinceUnseenTeleport = 0;
+                } else if (this.targetEntity.squaredDistanceTo(this.baseHerobrineEntity) > 256.0 && this.ticksSinceUnseenTeleport++ >= this.getTickCount(30) && this.baseHerobrineEntity.teleportTo(this.targetEntity)) {
+                    this.baseHerobrineEntity.world.playSound(this.baseHerobrineEntity.getX(), this.baseHerobrineEntity.getEyeY(), this.baseHerobrineEntity.getZ(), new BiomeMoodSound(SoundEvents.AMBIENT_CAVE, 0, 8, 2.0).getSound().value(), SoundCategory.HOSTILE, 2.5f, 1.0f, false);
+                    this.ticksSinceUnseenTeleport = 0;
                 }
-                super.tick();
             }
+            super.tick();
         }
     }
 
