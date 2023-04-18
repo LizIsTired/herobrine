@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 public class ClientPlayNetworkHandlerMixin {
 
 
-    @Inject(method = "onGameStateChange(Lnet/minecraft/network/packet/s2c/play/GameStateChangeS2CPacket;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;addParticle(Lnet/minecraft/particle/ParticleEffect;DDDDDD)V", shift = At.Shift.BY, by = 0), cancellable = true)
+    /*@Inject(method = "onGameStateChange(Lnet/minecraft/network/packet/s2c/play/GameStateChangeS2CPacket;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;addParticle(Lnet/minecraft/particle/ParticleEffect;DDDDDD)V", shift = At.Shift.BY, by = 0), cancellable = true)
 
 
     //inject into the method onGameStateChange in ClientPlayNetworkHandler, at the last "else if", inject and print to console
@@ -35,6 +35,15 @@ public class ClientPlayNetworkHandlerMixin {
         System.out.println("Game state changed! Elder Guardian particle effect played from Elder Guardian entity. This is a Herobrine Returns mixin!");
         ci.cancel();
         return;
-    }
+    }*/
 
+    @Inject(method = "onGameStateChange(Lnet/minecraft/network/packet/s2c/play/GameStateChangeS2CPacket;)V", at = @At(value = "TAIL"))
+    public void onGameStateChange(GameStateChangeS2CPacket packet, CallbackInfo ci) {
+        if (packet.getReason() == HerobrineReturns.HEROBRINE_APPEARANCE_EFFECT) {
+            MinecraftClient client = MinecraftClient.getInstance();
+            PlayerEntity playerEntity = client.player;
+            client.world.addImportantParticle(RegisterParticles.HEROBRINE_JUMPSCARE, true, playerEntity.getX(), playerEntity.getY(), playerEntity.getZ(), 0.0, 0.0, 0.0);
+            System.out.println("Game state changed! Elder Guardian particle effect played from Elder Guardian entity. This is a Herobrine Returns mixin!");
+        }
+    }
 }

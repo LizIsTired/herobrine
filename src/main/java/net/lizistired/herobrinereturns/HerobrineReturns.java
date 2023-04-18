@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
 import net.lizistired.herobrinereturns.utils.registry.RegisterEntities;
 import net.lizistired.herobrinereturns.utils.registry.RegisterItems;
 import net.lizistired.herobrinereturns.utils.registry.RegisterParticles;
+import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;
 import net.minecraft.particle.DefaultParticleType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -22,6 +23,7 @@ public class HerobrineReturns implements ModInitializer {
 	// It is considered best practice to use your mod id as the logger's name.
 	// That way, it's clear which mod wrote info, warnings, and errors.
 	public static final Logger LOGGER = LoggerFactory.getLogger("herobrinereturns");
+	public static final GameStateChangeS2CPacket.Reason HEROBRINE_APPEARANCE_EFFECT = new GameStateChangeS2CPacket.Reason(12);
 
 
 

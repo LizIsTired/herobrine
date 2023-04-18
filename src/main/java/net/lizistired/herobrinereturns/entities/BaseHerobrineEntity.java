@@ -16,19 +16,26 @@ import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffectUtil;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.Angerable;
+import net.minecraft.entity.mob.EndermanEntity;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BiomeMoodSound;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -41,6 +48,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -66,14 +75,14 @@ public class BaseHerobrineEntity extends HostileEntity implements Angerable {
     protected void initGoals() {
         this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 500.0f, 1.0f));
         //this.goalSelector.add(1, new EatGrassGoal(this));
-        this.targetSelector.add(2, new TeleportTowardsPlayerGoal(this, this::shouldAngerAt));
+        this.targetSelector.add(1, new TeleportTowardsPlayerGoal(this, this::shouldAngerAt));
         //this.goalSelector.add(1, new FlyGoal(this, 500));
         //this.goalSelector.add(8, new WanderAroundGoal(this, 0.23f));
         //this.goalSelector.add(8, new LookAroundGoal(this));
         this.initCustomGoals();
     }
     protected void initCustomGoals() {
-        //this.goalSelector.add(2, new MeleeAttackGoal(this, 4f, true));
+        this.goalSelector.add(2, new MeleeAttackGoal(this, 0.4f, false));
         this.targetSelector.add(2, new ActiveTargetGoal<PlayerEntity>((MobEntity)this, PlayerEntity.class, true));
     }
     @Override
@@ -148,21 +157,75 @@ public class BaseHerobrineEntity extends HostileEntity implements Angerable {
         this.readAngerFromNbt(this.world, nbt);
     }
 
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return this.isAngry() ? SoundEvents.ENTITY_GHAST_SCREAM : SoundEvents.ENTITY_PHANTOM_AMBIENT;
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource source) {
+        return SoundEvents.BLOCK_ANCIENT_DEBRIS_HIT;
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return SoundEvents.ENTITY_ENDERMITE_DEATH;
+    }
+
     public boolean isAngry() {
         return this.dataTracker.get(ANGRY);
     }
+
     @Override
+    public boolean cannotDespawn() {
+        super.cannotDespawn();
+        return true;
+    }
+    /*@Override
     public void tick(){
         super.tick();
         world = this.getEntityWorld();
         /*if (isPlayerStaring((PlayerEntity)Objects.requireNonNull(this.getTarget()))){
             this.teleport(world.getClosestPlayer(this, 10).getX(), world.getClosestPlayer(this, 10).getY(), world.getClosestPlayer(this, 10).getZ());
-        }*/
+        }
         // if distance between this entity and the player is less than 10 blocks, then teleport to the player
         /*if (world.getClosestPlayer(this, 10) != null) {
             this.teleport(world.getClosestPlayer(this, 10).getX(), world.getClosestPlayer(this, 10).getY(), world.getClosestPlayer(this, 10).getZ());
-        }*/
+        }
 
+    }*/
+    @Override
+    public void tickMovement() {
+        if (this.world.isClient) {
+            for (int i = 0; i < 2; ++i) {
+                this.world.addParticle(ParticleTypes.ANGRY_VILLAGER, this.getParticleX(0.5), this.getRandomBodyY() - 0.25, this.getParticleZ(0.5), (this.random.nextDouble() - 0.5) * 2.0, -this.random.nextDouble(), (this.random.nextDouble() - 0.5) * 2.0);
+            }
+        }
+        this.jumping = false;
+        if (!this.world.isClient) {
+            this.tickAngerLogic((ServerWorld)this.world, true);
+        }
+        super.tickMovement();
+    }
+    @Override
+    protected void mobTick() {
+        super.mobTick();
+        if(this.getTarget() instanceof PlayerEntity){
+            //if ((this.age + this.getId()) % 1200 == 0) {
+            if(isPlayerStaring((PlayerEntity)this.getTarget()) && this.age > 15) {
+                StatusEffectInstance statusEffectInstance = new StatusEffectInstance(StatusEffects.SLOWNESS, 50, 0);
+                StatusEffectInstance statusEffectInstance1 = new StatusEffectInstance(StatusEffects.BLINDNESS, 50, 256);
+                StatusEffectUtil.addEffectToPlayersWithinDistance((ServerWorld) this.world, this, this.getPos(), 50.0, statusEffectInstance, 50);
+                List<ServerPlayerEntity> list = StatusEffectUtil.addEffectToPlayersWithinDistance((ServerWorld) this.world, this, this.getPos(), 50.0, statusEffectInstance1, 5);
+                list.forEach(serverPlayerEntity -> serverPlayerEntity.networkHandler.sendPacket(new GameStateChangeS2CPacket(HerobrineReturns.HEROBRINE_APPEARANCE_EFFECT, this.isSilent() ? GameStateChangeS2CPacket.DEMO_OPEN_SCREEN : (int) 1.0f)));
+                list.forEach(serverPlayerEntity -> serverPlayerEntity.playSound(SoundEvents.ENTITY_WITHER_SHOOT, 1.0f, 1.0f));
+                this.age = 0;
+           //}
+        }
+        }
+        if (!this.hasPositionTarget()) {
+            this.setPositionTarget(this.getBlockPos(), 16);
+        }
     }
 
     boolean isPlayerStaring(PlayerEntity player) {
@@ -184,7 +247,7 @@ public class BaseHerobrineEntity extends HostileEntity implements Angerable {
         double e = this.getY() + (double)(this.random.nextInt(64) - 32);
         double f = this.getZ() + (this.random.nextDouble() - 0.5) * 64.0;
         LightningEntity lightning = new LightningEntity(EntityType.LIGHTNING_BOLT, this.world); // Create the lightning bolt
-        lightning.setPosition(this.getPos()); // Set its position. This will make the lightning bolt strike the player (probably not what you want)
+        lightning.setPosition(d,e,f); // Set its position. This will make the lightning bolt strike the player (probably not what you want)
         world.spawnEntity(lightning); // Spawn the lightning entity
         return this.teleportTo(d, e, f);
     }
@@ -263,7 +326,40 @@ public class BaseHerobrineEntity extends HostileEntity implements Angerable {
 
         return super.initialize(world, difficulty, spawnReason, entityData, entityNbt);
     }
+    static class ChasePlayerGoal
+            extends Goal {
+        private final BaseHerobrineEntity baseHerobrineEntity;
+        @Nullable
+        private LivingEntity target;
 
+        public ChasePlayerGoal(BaseHerobrineEntity baseHerobrineEntity) {
+            this.baseHerobrineEntity = baseHerobrineEntity;
+            this.setControls(EnumSet.of(Goal.Control.JUMP, Goal.Control.MOVE));
+        }
+
+        @Override
+        public boolean canStart() {
+            this.target = this.baseHerobrineEntity.getTarget();
+            if (!(this.target instanceof PlayerEntity)) {
+                return false;
+            }
+            double d = this.target.squaredDistanceTo(this.baseHerobrineEntity);
+            if (d > 256.0) {
+                return false;
+            }
+            return this.baseHerobrineEntity.isPlayerStaring((PlayerEntity) this.target);
+        }
+
+        @Override
+        public void start() {
+            this.baseHerobrineEntity.getNavigation().stop();
+        }
+
+        @Override
+        public void tick() {
+            this.baseHerobrineEntity.getLookControl().lookAt(this.target.getX(), this.target.getEyeY(), this.target.getZ());
+        }
+    }
     class TeleportTowardsPlayerGoal
             extends ActiveTargetGoal<PlayerEntity> {
         private final BaseHerobrineEntity baseHerobrineEntity;
@@ -332,7 +428,7 @@ public class BaseHerobrineEntity extends HostileEntity implements Angerable {
                         if (this.targetEntity.squaredDistanceTo(this.baseHerobrineEntity) > 16.0) {
                             HerobrineReturns.LOGGER.info("Herobrine has teleported!");
                             this.baseHerobrineEntity.world.playSound(this.baseHerobrineEntity.getX(), this.baseHerobrineEntity.getEyeY(), this.baseHerobrineEntity.getZ(), new BiomeMoodSound(SoundEvents.AMBIENT_CAVE, 0, 8, 2.0).getSound().value(), SoundCategory.HOSTILE, 2.5f, 1.0f, false);
-                            this.baseHerobrineEntity.teleportRandomly();
+                            this.baseHerobrineEntity.teleportTo(this.targetEntity.getPos().getX(), this.targetEntity.getPos().getY(), this.targetEntity.getPos().getZ());
                         }
                     }
                     this.ticksSinceUnseenTeleport = 0;
@@ -347,12 +443,12 @@ public class BaseHerobrineEntity extends HostileEntity implements Angerable {
 
     public static DefaultAttributeContainer.Builder createHerobrineAttributes() {
         return createLivingAttributes()
-                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 2f)
+                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.4f)
                 .add(EntityAttributes.GENERIC_FOLLOW_RANGE, Float.MAX_VALUE)
                 .add(EntityAttributes.GENERIC_MAX_HEALTH, Float.MAX_VALUE)
                 .add(EntityAttributes.GENERIC_ARMOR, Float.MAX_VALUE)
-                .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, Float.MAX_VALUE)
-                .add(EntityAttributes.GENERIC_ATTACK_KNOCKBACK, Float.MAX_VALUE)
+                .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, Float.MIN_VALUE)
+                .add(EntityAttributes.GENERIC_ATTACK_KNOCKBACK, 2f)
                 .add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, Float.MAX_VALUE)
                 .add(EntityAttributes.GENERIC_ARMOR_TOUGHNESS, Float.MAX_VALUE);
     }
