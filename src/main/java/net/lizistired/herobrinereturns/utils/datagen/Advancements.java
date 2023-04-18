@@ -26,7 +26,7 @@ public class Advancements implements Consumer<Consumer<Advancement>> {
                         false // Hidden in the advancement tab
                 )
                 // The first string used in criterion is the name referenced by other advancements when they want to have 'requirements'
-                .criterion("got_dirt", InventoryChangedCriterion.Conditions.items(RegisterItems.CURSED_BOOK))
+                .criterion("cursed", InventoryChangedCriterion.Conditions.items(RegisterItems.CURSED_BOOK))
                 .build(consumer, "herobrinereturns" + "/root");
     }
 }
