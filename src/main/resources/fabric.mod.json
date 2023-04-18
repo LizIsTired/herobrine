@@ -18,6 +18,9 @@
 
   "environment": "*",
   "entrypoints": {
+    "fabric-datagen": [
+      "net.lizistired.herobrinereturns.utils.datagen.DataGen"
+    ],
     "main": [
       "net.lizistired.herobrinereturns.HerobrineReturns"
     ],

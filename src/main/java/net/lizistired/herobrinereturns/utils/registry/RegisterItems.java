@@ -8,8 +8,8 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 
 public final class RegisterItems {
+    public static Item CURSED_BOOK = new Item(new Item.Settings().maxCount(1));
     public static void init(){
-        Item CURSED_BOOK = new Item(new Item.Settings().maxCount(1));
         Registry.register(Registries.ITEM, new Identifier("herobrinereturns", "cursed_book"), CURSED_BOOK);
     }
 }
