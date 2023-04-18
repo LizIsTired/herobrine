@@ -3,6 +3,7 @@ package net.lizistired.herobrinereturns.entities;
 import net.lizistired.herobrinereturns.HerobrineJumpscareParticleGoofyAhhh;
 import net.lizistired.herobrinereturns.HerobrineReturns;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.particle.ElderGuardianAppearanceParticle;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.TargetPredicate;
@@ -82,9 +83,13 @@ public class BaseHerobrineEntity extends HostileEntity implements Angerable {
             this.ageWhenTargetSet = 0;
             this.dataTracker.set(ANGRY, false);
         } else {
-            target.world.addParticle(HEROBRINE_JUMPSCARE, true, target.getX(), target.getY(), target.getZ(), 0, 0, 0);
             this.ageWhenTargetSet = this.age;
             this.dataTracker.set(ANGRY, true);
+            if(target instanceof PlayerEntity) {
+                target.getWorld().addImportantParticle(ParticleTypes.FALLING_HONEY, true, target.getX(), target.getY(), target.getZ(), 0, 0, 0);
+                target.playSound(SoundEvents.ENTITY_BEE_DEATH, 1.0f, 1.0f);
+                HerobrineReturns.LOGGER.info("Player was killed by Herobrine");
+            }
         }
     }
 
@@ -326,7 +331,6 @@ public class BaseHerobrineEntity extends HostileEntity implements Angerable {
                     if (this.baseHerobrineEntity.isPlayerStaring((PlayerEntity) this.targetEntity)) {
                         if (this.targetEntity.squaredDistanceTo(this.baseHerobrineEntity) > 16.0) {
                             HerobrineReturns.LOGGER.info("Herobrine has teleported!");
-                            targetEntity.world.addImportantParticle(HEROBRINE_JUMPSCARE.getType(), true, ((ServerPlayerEntity)targetEntity).getX(), ((ServerPlayerEntity)targetEntity).getY(), ((ServerPlayerEntity)targetEntity).getZ(), 0.0D, 0.0D, 0.0D);
                             this.baseHerobrineEntity.world.playSound(this.baseHerobrineEntity.getX(), this.baseHerobrineEntity.getEyeY(), this.baseHerobrineEntity.getZ(), new BiomeMoodSound(SoundEvents.AMBIENT_CAVE, 0, 8, 2.0).getSound().value(), SoundCategory.HOSTILE, 2.5f, 1.0f, false);
                             this.baseHerobrineEntity.teleportRandomly();
                         }
