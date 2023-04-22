@@ -8,5 +8,6 @@ public class DataGen implements DataGeneratorEntrypoint {
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
         fabricDataGenerator.createPack().addProvider(AdvancementsProvider::new);
+        //fabricDataGenerator.createPack().addProvider(EnglishLangProvider::new);
     }
 }

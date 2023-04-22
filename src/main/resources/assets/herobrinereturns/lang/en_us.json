@@ -1,5 +1,12 @@
 {
  "entity.minecraft.herobrine" : "§kevVakMroxkwfamtsZKuIkzQJofkIQqIxDTwCQmFNmXzThTUnKeBkYGaJUoSnSxKHXILJrrmYxtzLskyRIvNermPsOVdPqPvMtJHlhfennmceacbbQnzysQsQnKFdoABRWyauMrSicwnaCfIItlViZiNNfMzaVgJZHWRMlreFLGlxBdCRNKbpTGBIXFZRrjboIRaJqwmwzbXkoQwluICoxTLOlParHBHaIkerCZPewSKluPgOhHIqTLIUqoYuLqRzFvXqUleNOvzMIyOjyqQjwQUEnSpALypjmobRixock",
  "entity.minecraft.herobrinenametag" : "§kHerobrine",
- "item.herobrinereturns.cursed_book" : "Cursed Book"
+ "item.herobrinereturns.cursed_book" : "Cursed Book",
+ "entity.minecraft.herobrine.chat1" : "too slow",
+ "entity.minecraft.herobrine.chat2" : "run",
+ "entity.minecraft.herobrine.chat3" : "fear me",
+ "entity.minecraft.herobrine.chat4" : "i'll kill you",
+ "entity.minecraft.herobrine.chat5" : "not fast enough",
+ "entity.minecraft.herobrine.chat6" : "i'll burn you",
+ "entity.minecraft.herobrine.chat7" : "you can run...but you cannot hide"
 }

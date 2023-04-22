@@ -1,7 +1,8 @@
-package net.lizistired.herobrinereturns;
+package net.lizistired.herobrinereturns.particles;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.lizistired.herobrinereturns.HerobrineReturnsClient;
 import net.lizistired.herobrinereturns.entities.models.BaseHerobrineEntityModel;
 import net.lizistired.herobrinereturns.entities.renderers.BaseHerobrineEntityRenderer;
 import net.minecraft.client.MinecraftClient;

@@ -1,17 +1,14 @@
 package net.lizistired.herobrinereturns.entities;
 
-import net.lizistired.herobrinereturns.HerobrineJumpscareParticleGoofyAhhh;
 import net.lizistired.herobrinereturns.HerobrineReturns;
+import net.lizistired.herobrinereturns.utils.misc.RapidTitle;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.particle.ElderGuardianAppearanceParticle;
-import net.minecraft.client.particle.Particle;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageType;
 import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
@@ -20,16 +17,13 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffectUtil;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.Angerable;
-import net.minecraft.entity.mob.EndermanEntity;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;
-import net.minecraft.particle.ParticleEffect;
+import net.minecraft.network.packet.s2c.play.TitleFadeS2CPacket;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -38,7 +32,6 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -54,10 +47,8 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-import static net.lizistired.herobrinereturns.utils.registry.RegisterParticles.HEROBRINE_JUMPSCARE;
 
-
-public class BaseHerobrineEntity extends HostileEntity implements Angerable {
+public abstract class BaseHerobrineEntity extends HostileEntity implements Angerable {
 
     private static final TrackedData<Boolean> ANGRY = DataTracker.registerData(BaseHerobrineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> NO_GRAVITY = DataTracker.registerData(BaseHerobrineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -159,7 +150,7 @@ public class BaseHerobrineEntity extends HostileEntity implements Angerable {
 
     @Override
     protected SoundEvent getAmbientSound() {
-        return this.isAngry() ? SoundEvents.ENTITY_GHAST_SCREAM : SoundEvents.ENTITY_PHANTOM_AMBIENT;
+        return new BiomeMoodSound(SoundEvents.AMBIENT_CAVE, 0, 8, 20.0).getSound().value();
     }
 
     @Override
@@ -213,12 +204,16 @@ public class BaseHerobrineEntity extends HostileEntity implements Angerable {
         if(this.getTarget() instanceof PlayerEntity){
             //if ((this.age + this.getId()) % 1200 == 0) {
             if(isPlayerStaring((PlayerEntity)this.getTarget()) && this.age > 15) {
+
                 StatusEffectInstance statusEffectInstance = new StatusEffectInstance(StatusEffects.SLOWNESS, 50, 0);
                 StatusEffectInstance statusEffectInstance1 = new StatusEffectInstance(StatusEffects.BLINDNESS, 50, 256);
                 StatusEffectUtil.addEffectToPlayersWithinDistance((ServerWorld) this.world, this, this.getPos(), 50.0, statusEffectInstance, 50);
                 List<ServerPlayerEntity> list = StatusEffectUtil.addEffectToPlayersWithinDistance((ServerWorld) this.world, this, this.getPos(), 50.0, statusEffectInstance1, 5);
                 list.forEach(serverPlayerEntity -> serverPlayerEntity.networkHandler.sendPacket(new GameStateChangeS2CPacket(HerobrineReturns.HEROBRINE_APPEARANCE_EFFECT, this.isSilent() ? GameStateChangeS2CPacket.DEMO_OPEN_SCREEN : (int) 1.0f)));
                 list.forEach(serverPlayerEntity -> serverPlayerEntity.playSound(SoundEvents.ENTITY_WITHER_SHOOT, 1.0f, 1.0f));
+                //list.forEach(serverPlayerEntity -> serverPlayerEntity.sendMessage(Text.translatable("entity.minecraft.herobrine.chat" + random.nextBetween(1, 7)), true));
+                list.forEach(serverPlayerEntity -> serverPlayerEntity.networkHandler.sendPacket(new TitleFadeS2CPacket(5, 2, 5)));
+                list.forEach(serverPlayerEntity -> serverPlayerEntity.networkHandler.sendPacket(RapidTitle.title("entity.minecraft.herobrine.chat", 1, 7, 5, 2, 5)));
                 this.age = 0;
            //}
         }
@@ -360,7 +355,7 @@ public class BaseHerobrineEntity extends HostileEntity implements Angerable {
             this.baseHerobrineEntity.getLookControl().lookAt(this.target.getX(), this.target.getEyeY(), this.target.getZ());
         }
     }
-    class TeleportTowardsPlayerGoal
+    public class TeleportTowardsPlayerGoal
             extends ActiveTargetGoal<PlayerEntity> {
         private final BaseHerobrineEntity baseHerobrineEntity;
         @Nullable

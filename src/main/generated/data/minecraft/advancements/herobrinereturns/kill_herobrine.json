@@ -1,23 +1,22 @@
 {
+  "parent": "minecraft:herobrinereturns/root",
   "criteria": {
-    "cursed": {
+    "kill_herobrine": {
       "conditions": {
-        "items": [
-          {
-            "items": [
-              "herobrinereturns:cursed_book"
-            ]
-          }
-        ]
+        "item": {
+          "items": [
+            "herobrinereturns:cursed_book"
+          ]
+        }
       },
-      "trigger": "minecraft:inventory_changed"
+      "trigger": "minecraft:consume_item"
     }
   },
   "display": {
     "announce_to_chat": true,
     "background": "minecraft:textures/block/cherry_log.png",
     "description": {
-      "text": "He's coming now..."
+      "text": "...wtf dude"
     },
     "frame": "task",
     "hidden": false,
@@ -26,12 +25,12 @@
     },
     "show_toast": true,
     "title": {
-      "text": "Oh no..."
+      "text": "You...ate the book??"
     }
   },
   "requirements": [
     [
-      "cursed"
+      "kill_herobrine"
     ]
   ]
 }

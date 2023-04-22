@@ -1,11 +1,11 @@
-package net.lizistired.herobrinereturns;
+package net.lizistired.herobrinereturns.particles;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.lizistired.herobrinereturns.HerobrineReturnsClient;
 import net.lizistired.herobrinereturns.entities.models.BaseHerobrineEntityModel;
 import net.lizistired.herobrinereturns.entities.renderers.BaseHerobrineEntityRenderer;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.model.Model;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleFactory;
@@ -15,9 +15,6 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.particle.DefaultParticleType;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RotationAxis;
 
 @Environment(EnvType.CLIENT)
 public class HerobrineJumpscareParticle extends Particle {
