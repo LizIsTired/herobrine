@@ -231,9 +231,9 @@ public class HerobrineBoss extends BaseHerobrineEntity {
 
     @Override
     protected void initCustomGoals() {
-        this.goalSelector.add(1, new MeleeAttackGoal(this, 0.4f, true));
-        this.goalSelector.add(2, new LightningAttack(this, 50, 3));
-        this.goalSelector.add(2, new DecoyAttack(this, 50, 3));
+        //this.goalSelector.add(1, new MeleeAttackGoal(this, 0.4f, true));
+        this.goalSelector.add(1, new LightningAttack(this, 50, 3));
+        //this.goalSelector.add(2, new DecoyAttack(this, 50, 3));
         this.targetSelector.add(1, new ActiveTargetGoal<PlayerEntity>((MobEntity) this, PlayerEntity.class, false));
     }
 
@@ -243,8 +243,8 @@ public class HerobrineBoss extends BaseHerobrineEntity {
         NEUTRAL;
     }
 
-    static class LightningAttack extends Goal {
-        private final HerobrineBoss herobrineBoss1;
+    class LightningAttack extends Goal {
+        private HerobrineBoss herobrineBoss1;
         private int ticksSinceAttackStarted;
         private int ticksSinceAttackEnded;
         private int attackDowntime = 50;
@@ -259,6 +259,13 @@ public class HerobrineBoss extends BaseHerobrineEntity {
             this.attackLength = attackLength;
         }
 
+        protected int getSpellTicks() {
+            return 40;
+        }
+
+        protected int startTimeDelay() {
+            return 100;
+        }
         @Override
         public boolean canStart() {
             this.target = this.herobrineBoss1.getTarget();
@@ -266,17 +273,24 @@ public class HerobrineBoss extends BaseHerobrineEntity {
                 return false;
             }
             double d = this.target.squaredDistanceTo(this.herobrineBoss1);
-            if (d > (256.0 * 10)) {
-                return false;
-            }
-            return true;//this.herobrineBoss.isPlayerStaring((PlayerEntity) this.target);
+            return !(d > (25.0));
+            //this.herobrineBoss.isPlayerStaring((PlayerEntity) this.target);
         }
 
         public void start(){
             this.ticksSinceAttackStarted = 0;
             this.ticksSinceAttackEnded = 0;
+            HerobrineBoss.this.setSpell(Spell.SUMMON_VEX);
+
         }
 
+        public boolean canStop(){
+            return ticksSinceAttackStarted > this.attackLength;
+        }
+
+        public void stop(){
+            HerobrineBoss.this.setSpell(Spell.NONE);
+        }
 
         @Override
         public void tick(){
@@ -293,7 +307,7 @@ public class HerobrineBoss extends BaseHerobrineEntity {
                 double f = herobrineBoss1.getZ() + (Random.create().nextDouble() - 0.5) * 16.0;
                 LightningEntity lightning = new LightningEntity(EntityType.LIGHTNING_BOLT, target.world); // Create the lightning bolt
                 lightning.setPosition(d, e, f); // Set its position. This will make the lightning bolt strike the player (probably not what you want)
-                //target.world.spawnEntity(lightning); // Spawn the lightning entity
+                target.world.spawnEntity(lightning); // Spawn the lightning entity
 
                 //DisplayEntity.ItemDisplayEntity itemDisplayEntity = new DisplayEntity.ItemDisplayEntity(EntityType.ITEM_DISPLAY, target.world);
             } if (this.ticksSinceAttackEnded > this.attackDowntime) {

@@ -97,16 +97,21 @@ public class HerobrineBossEntityModel<T extends HerobrineBoss> extends SinglePar
             this.leftArm.roll = -2.3561945f;
             this.rightArm.yaw = 0.0f;
             this.leftArm.yaw = 0.0f;
+            this.arms.visible = false;
+            this.leftArm.visible = true;
+            this.rightArm.visible = true;
+        } else if (state == HerobrineBoss.State.NEUTRAL) {
+            this.arms.visible= false;
+            this.leftArm.visible = true;
+            this.rightArm.visible = true;
+            this.rightArm.pitch = MathHelper.cos(f * 0.6662f + (float)Math.PI) * 2.0f * g * 0.5f;
+            this.rightArm.yaw = 0.0f;
+            this.rightArm.roll = 0.0f;
+            this.leftArm.pitch = MathHelper.cos(f * 0.6662f) * 2.0f * g * 0.5f;
+            this.leftArm.yaw = 0.0f;
+            this.leftArm.roll = 0.0f;
         }
-        this.arms.visible = bl = state == HerobrineBoss.State.NEUTRAL;
-        this.rightArm.pitch = MathHelper.cos(f * 0.6662f + (float)Math.PI) * 2.0f * g * 0.5f;
-        this.rightArm.yaw = 0.0f;
-        this.rightArm.roll = 0.0f;
-        this.leftArm.pitch = MathHelper.cos(f * 0.6662f) * 2.0f * g * 0.5f;
-        this.leftArm.yaw = 0.0f;
-        this.leftArm.roll = 0.0f;
-        this.leftArm.visible = !bl;
-        this.rightArm.visible = !bl;
+        //this.arms.visible = false;
     }
 
     public ModelPart getPart() {return this.root;}
