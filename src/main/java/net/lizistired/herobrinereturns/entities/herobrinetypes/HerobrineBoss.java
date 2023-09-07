@@ -200,6 +200,9 @@ public class HerobrineBoss extends BaseHerobrineEntity {
             //    }
             //}
         }
+        if (source.isOf(DamageTypes.LIGHTNING_BOLT)) {
+            return false;
+        }
         return super.damage(source, amount);
     }
 
@@ -273,7 +276,7 @@ public class HerobrineBoss extends BaseHerobrineEntity {
                 return false;
             }
             double d = this.target.squaredDistanceTo(this.herobrineBoss1);
-            return !(d > (25.0));
+            return !(d > (256 * 10.0));
             //this.herobrineBoss.isPlayerStaring((PlayerEntity) this.target);
         }
 
