@@ -9,15 +9,17 @@ import net.lizistired.herobrinereturns.entities.models.BaseHerobrineEntityModel;
 import net.lizistired.herobrinereturns.entities.models.HerobrineBossEntityModel;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.MobEntityRenderer;
+import net.minecraft.client.render.entity.feature.HeldItemFeatureRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.mob.GiantEntity;
 import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
-public class BaseHerobrineEntityRenderer extends MobEntityRenderer<BaseHerobrineEntity, BaseHerobrineEntityModel> {
+public class BaseHerobrineEntityRenderer extends MobEntityRenderer<BaseHerobrineEntity, BaseHerobrineEntityModel<BaseHerobrineEntity>> {
     public static final Identifier TEXTURE = new Identifier("herobrinereturns", "textures/entity/herobrine/herobrine.png");
     public BaseHerobrineEntityRenderer(EntityRendererFactory.Context context) {
-        super(context, new BaseHerobrineEntityModel(context.getPart(HerobrineReturnsClient.MODEL_HEROBRINE_LAYER)), 0.5f);
+        super(context, new BaseHerobrineEntityModel<>(context.getPart(HerobrineReturnsClient.MODEL_HEROBRINE_LAYER)), 0.5f);
+        this.addFeature(new HeldItemFeatureRenderer<>(this, context.getHeldItemRenderer()));
     }
     @Override
     public Identifier getTexture(BaseHerobrineEntity entity) {

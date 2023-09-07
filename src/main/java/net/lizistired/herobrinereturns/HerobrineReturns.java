@@ -2,6 +2,7 @@ package net.lizistired.herobrinereturns;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.lizistired.herobrinereturns.utils.registry.RegisterEntities;
@@ -32,6 +33,8 @@ public class HerobrineReturns implements ModInitializer {
 	private static final Identifier DESERT_PYRAMID_CHEST_ID = LootTables.DESERT_PYRAMID_CHEST;
 	private static final Identifier SIMPLE_DUNGEON_CHEST = LootTables.SIMPLE_DUNGEON_CHEST;
 
+	public static MinecraftServer minecraftServer;
+
 	@Override
 	public void onInitialize() {
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
@@ -42,6 +45,11 @@ public class HerobrineReturns implements ModInitializer {
 		RegisterItems.init();
 		RegisterParticles.init();
 		LOGGER.info("Hello Fabric world!");
+
+
+		ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
+			minecraftServer = server;
+		});
 
 		LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) -> {
 			if (source.isBuiltin() && DESERT_PYRAMID_CHEST_ID.equals(id) || source.isBuiltin() && SIMPLE_DUNGEON_CHEST.equals(id)) {

@@ -76,6 +76,18 @@ public class StandardHerobrineEntity extends BaseHerobrineEntity implements Ange
     }
 
     @Override
+    public boolean damage(DamageSource source, float amount) {
+        if (!source.isOf(DamageTypes.OUT_OF_WORLD)) {
+            if (Objects.equals(source.getName(), "player")) {
+                //source.getSource().addVelocity(500,5,0);
+                //source.getSource().startRiding(this, true);
+            }
+            return false;
+        }
+        return super.damage(source, amount);
+    }
+
+    @Override
     protected void mobTick() {
         super.mobTick();
         if (this.getTarget() instanceof PlayerEntity) {
@@ -90,7 +102,6 @@ public class StandardHerobrineEntity extends BaseHerobrineEntity implements Ange
                 list.forEach(serverPlayerEntity -> serverPlayerEntity.playSound(SoundEvents.ENTITY_WITHER_SHOOT, 1.0f, 1.0f));
                 //list.forEach(serverPlayerEntity -> serverPlayerEntity.sendMessage(Text.translatable("entity.minecraft.herobrine.chat" + random.nextBetween(1, 7)), true));
                 list.forEach(serverPlayerEntity -> serverPlayerEntity.networkHandler.sendPacket(new TitleFadeS2CPacket(5, 2, 5)));
-                list.forEach(serverPlayerEntity -> serverPlayerEntity.networkHandler.sendPacket(RapidTitle.title("entity.minecraft.herobrine.chat", 1, 7, 5, 2, 5)));
                 this.age = 0;
                 //}
             }
@@ -100,7 +111,7 @@ public class StandardHerobrineEntity extends BaseHerobrineEntity implements Ange
         }
     }
 
-    boolean isPlayerStaring(@NotNull PlayerEntity player) {
+    public boolean isPlayerStaring(@NotNull PlayerEntity player) {
         Vec3d vec3d = player.getRotationVec(1.0f).normalize();
         Vec3d vec3d2 = new Vec3d(this.getX() - player.getX(), this.getEyeY() - player.getEyeY(), this.getZ() - player.getZ());
         double d = vec3d2.length();

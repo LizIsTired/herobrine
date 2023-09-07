@@ -1,8 +1,10 @@
 package net.lizistired.herobrinereturns.entities;
 
+import com.ibm.icu.impl.SortedSetRelation;
 import net.lizistired.herobrinereturns.HerobrineReturns;
 import net.lizistired.herobrinereturns.utils.misc.RapidTitle;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.ai.goal.*;
@@ -32,6 +34,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -46,6 +49,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Predicate;
+
+import static net.lizistired.herobrinereturns.HerobrineReturns.minecraftServer;
 
 
 public abstract class BaseHerobrineEntity extends HostileEntity implements Angerable {
@@ -64,9 +69,9 @@ public abstract class BaseHerobrineEntity extends HostileEntity implements Anger
     }
     @Override
     protected void initGoals() {
-        this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 500.0f, 1.0f));
+        //this.goalSelector.add(1, new LookAtEntityGoal(this, PlayerEntity.class, 500.0f, 1.0f));
         //this.goalSelector.add(1, new EatGrassGoal(this));
-        this.targetSelector.add(1, new TeleportTowardsPlayerGoal(this, this::shouldAngerAt));
+        //this.targetSelector.add(1, new TeleportTowardsPlayerGoal(this, this::shouldAngerAt));
         //this.goalSelector.add(1, new FlyGoal(this, 500));
         //this.goalSelector.add(8, new WanderAroundGoal(this, 0.23f));
         //this.goalSelector.add(8, new LookAroundGoal(this));
@@ -85,11 +90,6 @@ public abstract class BaseHerobrineEntity extends HostileEntity implements Anger
         } else {
             this.ageWhenTargetSet = this.age;
             this.dataTracker.set(ANGRY, true);
-            if(target instanceof PlayerEntity) {
-                target.getWorld().addImportantParticle(ParticleTypes.FALLING_HONEY, true, target.getX(), target.getY(), target.getZ(), 0, 0, 0);
-                target.playSound(SoundEvents.ENTITY_BEE_DEATH, 1.0f, 1.0f);
-                HerobrineReturns.LOGGER.info("Player was killed by Herobrine");
-            }
         }
     }
 
@@ -187,11 +187,6 @@ public abstract class BaseHerobrineEntity extends HostileEntity implements Anger
     }*/
     @Override
     public void tickMovement() {
-        if (this.world.isClient) {
-            for (int i = 0; i < 2; ++i) {
-                this.world.addParticle(ParticleTypes.ANGRY_VILLAGER, this.getParticleX(0.5), this.getRandomBodyY() - 0.25, this.getParticleZ(0.5), (this.random.nextDouble() - 0.5) * 2.0, -this.random.nextDouble(), (this.random.nextDouble() - 0.5) * 2.0);
-            }
-        }
         this.jumping = false;
         if (!this.world.isClient) {
             this.tickAngerLogic((ServerWorld)this.world, true);
@@ -209,11 +204,17 @@ public abstract class BaseHerobrineEntity extends HostileEntity implements Anger
                 StatusEffectInstance statusEffectInstance1 = new StatusEffectInstance(StatusEffects.BLINDNESS, 50, 256);
                 StatusEffectUtil.addEffectToPlayersWithinDistance((ServerWorld) this.world, this, this.getPos(), 50.0, statusEffectInstance, 50);
                 List<ServerPlayerEntity> list = StatusEffectUtil.addEffectToPlayersWithinDistance((ServerWorld) this.world, this, this.getPos(), 50.0, statusEffectInstance1, 5);
-                list.forEach(serverPlayerEntity -> serverPlayerEntity.networkHandler.sendPacket(new GameStateChangeS2CPacket(HerobrineReturns.HEROBRINE_APPEARANCE_EFFECT, this.isSilent() ? GameStateChangeS2CPacket.DEMO_OPEN_SCREEN : (int) 1.0f)));
-                list.forEach(serverPlayerEntity -> serverPlayerEntity.playSound(SoundEvents.ENTITY_WITHER_SHOOT, 1.0f, 1.0f));
-                //list.forEach(serverPlayerEntity -> serverPlayerEntity.sendMessage(Text.translatable("entity.minecraft.herobrine.chat" + random.nextBetween(1, 7)), true));
-                list.forEach(serverPlayerEntity -> serverPlayerEntity.networkHandler.sendPacket(new TitleFadeS2CPacket(5, 2, 5)));
-                list.forEach(serverPlayerEntity -> serverPlayerEntity.networkHandler.sendPacket(RapidTitle.title("entity.minecraft.herobrine.chat", 1, 7, 5, 2, 5)));
+                list.forEach(serverPlayerEntity -> {
+                    if(isPlayerStaring((PlayerEntity)this.getTarget())){
+                        serverPlayerEntity.networkHandler.sendPacket(new GameStateChangeS2CPacket(HerobrineReturns.HEROBRINE_APPEARANCE_EFFECT, this.isSilent() ? GameStateChangeS2CPacket.DEMO_OPEN_SCREEN : (int) 1.0f));
+                        serverPlayerEntity.playSound(SoundEvents.ENTITY_WITHER_SHOOT, 1.0f, 1.0f);
+                        try {
+                            RapidTitle.function(serverPlayerEntity,"entity.minecraft.herobrine.chat", 1, 2, 1, 100);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
                 this.age = 0;
            //}
         }
@@ -223,7 +224,7 @@ public abstract class BaseHerobrineEntity extends HostileEntity implements Anger
         }
     }
 
-    boolean isPlayerStaring(PlayerEntity player) {
+    public boolean isPlayerStaring(PlayerEntity player) {
         Vec3d vec3d = player.getRotationVec(1.0f).normalize();
         Vec3d vec3d2 = new Vec3d(this.getX() - player.getX(), this.getEyeY() - player.getEyeY(), this.getZ() - player.getZ());
         double d = vec3d2.length();
@@ -234,7 +235,7 @@ public abstract class BaseHerobrineEntity extends HostileEntity implements Anger
         return false;
     }
 
-    protected boolean teleportRandomly() {
+    private boolean teleportRandomly() {
         if (this.world.isClient() || !this.isAlive()) {
             return false;
         }
@@ -246,7 +247,7 @@ public abstract class BaseHerobrineEntity extends HostileEntity implements Anger
         world.spawnEntity(lightning); // Spawn the lightning entity
         return this.teleportTo(d, e, f);
     }
-    private boolean teleportTo(double x, double y, double z) {
+    protected boolean teleportTo(double x, double y, double z) {
         BlockPos.Mutable mutable = new BlockPos.Mutable(x, y, z);
         while (mutable.getY() > this.world.getBottomY() && !this.world.getBlockState(mutable).getMaterial().blocksMovement()) {
             mutable.move(Direction.DOWN);
@@ -292,17 +293,6 @@ public abstract class BaseHerobrineEntity extends HostileEntity implements Anger
         super.setCustomName(name);
     }
 
-    @Override
-    public boolean damage(DamageSource source, float amount) {
-        if (!source.isOf(DamageTypes.OUT_OF_WORLD)) {
-           if (Objects.equals(source.getName(), "player")) {
-                //source.getSource().addVelocity(500,5,0);
-                //source.getSource().startRiding(this, true);
-            }
-            return false;
-        }
-        return super.damage(source, amount);
-    }
 
     @Override
     public boolean shouldRenderName() {
@@ -317,8 +307,13 @@ public abstract class BaseHerobrineEntity extends HostileEntity implements Anger
         lightning.setPosition(this.getPos()); // Set its position. This will make the lightning bolt strike the player (probably not what you want)
         world.spawnEntity(lightning); // Spawn the lightning entity
         HerobrineReturns.LOGGER.info("Herobrine has spawned!");
+        MinecraftClient.getInstance().player.sendMessage(Text.translatable("entity.minecraft.regnametag"), false);
+        if (!world.isClient()) {
+             minecraftServer.sendMessage(Text.translatable("entity.minecraft.regnametag"));
+        } else {
+            MinecraftClient.getInstance().player.sendMessage(Text.translatable("entity.minecraft.regnametag"), false);
+        }
         this.setCustomName(Text.translatable("entity.minecraft.herobrinenametag"));
-
         return super.initialize(world, difficulty, spawnReason, entityData, entityNbt);
     }
     static class ChasePlayerGoal

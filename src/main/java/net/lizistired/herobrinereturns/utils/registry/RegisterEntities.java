@@ -1,13 +1,12 @@
 package net.lizistired.herobrinereturns.utils.registry;
 
-import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.lizistired.herobrinereturns.entities.BaseHerobrineEntity;
-import net.lizistired.herobrinereturns.entities.HerobrineShrine;
+import net.lizistired.herobrinereturns.entities.herobrinetypes.DecoyHerobrineEntity;
 import net.lizistired.herobrinereturns.entities.herobrinetypes.HerobrineBoss;
 import net.lizistired.herobrinereturns.entities.herobrinetypes.StandardHerobrineEntity;
-import net.minecraft.block.entity.BlockEntityType;
+import net.lizistired.herobrinereturns.entities.models.HerobrineDecoyEntityModel;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
@@ -31,13 +30,24 @@ public final class RegisterEntities {
                     .build()
     );
 
-    public static final EntityType<HerobrineShrine>
-            HEROBRINE_SHRINE = Registry.register(Registries.ENTITY_TYPE, new Identifier("minecraft", "herobrine_shrine"),
-            FabricEntityTypeBuilder.create(SpawnGroup.MISC, HerobrineShrine::new)
-                    .dimensions(EntityDimensions.fixed(0.5f, 0.5f))
+    public static final EntityType<DecoyHerobrineEntity>
+            DECOY_HEROBRINE_ENTITY = Registry.register(Registries.ENTITY_TYPE, new Identifier("minecraft", "herobrine_decoy"),
+            FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, DecoyHerobrineEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.75f, 2f))
                     .fireImmune()
                     .build()
     );
+
+
+
+    //public static final EntityType<HerobrineShrine>
+    //        HEROBRINE_SHRINE = Registry.register(Registries.ENTITY_TYPE, new Identifier("minecraft", "herobrine_shrine"),
+    //        FabricEntityTypeBuilder.create(SpawnGroup.MISC, HerobrineShrine::new)
+    //                .dimensions(EntityDimensions.fixed(0.5f, 0.5f))
+    //                .fireImmune()
+    //                .build()
+    //);
+
 
     /*public static final EntityType<ScaryHerobrineEntity>
             SCARY_HEROBRINE = Registry.register(Registries.ENTITY_TYPE, new Identifier("minecraft", "scary_herobrine"),
@@ -50,7 +60,8 @@ public final class RegisterEntities {
 
     public static void init() {
         FabricDefaultAttributeRegistry.register(STANDARD_HEROBRINE_ENTITY, BaseHerobrineEntity.createHerobrineAttributes());
-        FabricDefaultAttributeRegistry.register(HEROBRINE_BOSS_ENTITY_TYPE, BaseHerobrineEntity.createHerobrineAttributes());
+        FabricDefaultAttributeRegistry.register(HEROBRINE_BOSS_ENTITY_TYPE, HerobrineBoss.createHerobrineAttributes());
+        FabricDefaultAttributeRegistry.register(DECOY_HEROBRINE_ENTITY, DecoyHerobrineEntity.createHerobrineAttributes());
         //FabricDefaultAttributeRegistry.register(SCARY_HEROBRINE, ScaryHerobrineEntity.createHerobrineAttributes());
     }
 }

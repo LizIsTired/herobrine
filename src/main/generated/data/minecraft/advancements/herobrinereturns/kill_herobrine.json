@@ -3,13 +3,17 @@
   "criteria": {
     "kill_herobrine": {
       "conditions": {
-        "item": {
-          "items": [
-            "herobrinereturns:cursed_book"
-          ]
-        }
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:herobrine_boss"
+            }
+          }
+        ]
       },
-      "trigger": "minecraft:consume_item"
+      "trigger": "minecraft:player_killed_entity"
     }
   },
   "display": {

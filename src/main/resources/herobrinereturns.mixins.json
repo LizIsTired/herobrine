@@ -8,7 +8,11 @@
   "client": [
     "ClientPlayNetworkHandlerAccessor",
     "ClientPlayNetworkHandlerMixin",
-    "ScreenshotMixin"
+    "ScreenshotMixin",
+    "ItemMixin"
+  ],
+  "server": [
+    "ItemMixin"
   ],
   "injectors": {
     "defaultRequire": 1

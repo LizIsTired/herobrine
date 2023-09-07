@@ -6,12 +6,14 @@ import net.lizistired.herobrinereturns.entities.BaseHerobrineEntity;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
+import net.minecraft.client.render.entity.model.CrossbowPosing;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Identifier;
 
 import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
-public class BaseHerobrineEntityModel extends BipedEntityModel<BaseHerobrineEntity> {
+public class BaseHerobrineEntityModel<T extends LivingEntity> extends BipedEntityModel<T> {
 
     public BaseHerobrineEntityModel(ModelPart root) {
         super(root);
@@ -30,14 +32,4 @@ public class BaseHerobrineEntityModel extends BipedEntityModel<BaseHerobrineEnti
         return TexturedModelData.of(modelData, 64, 64);
     }
 
-    public void setAngles(BaseHerobrineEntity baseHerobrineEntityEntity, float f, float g, float h, float i, float j) {
-        super.setAngles(baseHerobrineEntityEntity, f, g, h, i, j);
-    }
-
-    /*@Override
-    public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
-        ImmutableList.of(this.base).forEach((modelRenderer) -> {
-            modelRenderer.render(matrices, vertices, light, overlay, red, green, blue, alpha);
-        });
-    }*/
 }

@@ -1,7 +1,11 @@
 {
  "entity.minecraft.herobrine" : "§kevVakMroxkwfamtsZKuIkzQJofkIQqIxDTwCQmFNmXzThTUnKeBkYGaJUoSnSxKHXILJrrmYxtzLskyRIvNermPsOVdPqPvMtJHlhfennmceacbbQnzysQsQnKFdoABRWyauMrSicwnaCfIItlViZiNNfMzaVgJZHWRMlreFLGlxBdCRNKbpTGBIXFZRrjboIRaJqwmwzbXkoQwluICoxTLOlParHBHaIkerCZPewSKluPgOhHIqTLIUqoYuLqRzFvXqUleNOvzMIyOjyqQjwQUEnSpALypjmobRixock",
  "entity.minecraft.herobrinenametag" : "§kHerobrine",
+ "entity.minecraft.herobrine_boss" : "§kHerobrine",
+ "entity.minecraft.herobrine_decoy": "§kHerobrine",
+ "entity.minecraft.regnametag" : "Summoned Herobrine...",
  "item.herobrinereturns.cursed_book" : "Cursed Book",
+ "item.herobrinereturns.cursed_book.tooltip" : "Cast me into the nearest shrine you find...",
  "entity.minecraft.herobrine.chat1" : "too slow",
  "entity.minecraft.herobrine.chat2" : "run",
  "entity.minecraft.herobrine.chat3" : "fear me",
