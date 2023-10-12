@@ -200,19 +200,21 @@ public abstract class BaseHerobrineEntity extends HostileEntity implements Anger
             //if ((this.age + this.getId()) % 1200 == 0) {
             if(isPlayerStaring((PlayerEntity)this.getTarget()) && this.age > 15) {
 
-                StatusEffectInstance statusEffectInstance = new StatusEffectInstance(StatusEffects.SLOWNESS, 50, 0);
-                StatusEffectInstance statusEffectInstance1 = new StatusEffectInstance(StatusEffects.BLINDNESS, 50, 256);
-                StatusEffectUtil.addEffectToPlayersWithinDistance((ServerWorld) this.world, this, this.getPos(), 50.0, statusEffectInstance, 50);
-                List<ServerPlayerEntity> list = StatusEffectUtil.addEffectToPlayersWithinDistance((ServerWorld) this.world, this, this.getPos(), 50.0, statusEffectInstance1, 5);
+                //StatusEffectInstance statusEffectInstance = new StatusEffectInstance(StatusEffects.SLOWNESS, 50, 0);
+                StatusEffectInstance statusEffectInstance1 = new StatusEffectInstance(StatusEffects.BLINDNESS, 0, 0);
+                //StatusEffectUtil.addEffectToPlayersWithinDistance((ServerWorld) this.world, this, this.getPos(), 50.0, statusEffectInstance, 50);
+                List<ServerPlayerEntity> list = StatusEffectUtil.addEffectToPlayersWithinDistance((ServerWorld) this.world, this, this.getPos(), 50.0, statusEffectInstance1, 0);
                 list.forEach(serverPlayerEntity -> {
                     if(isPlayerStaring((PlayerEntity)this.getTarget())){
                         serverPlayerEntity.networkHandler.sendPacket(new GameStateChangeS2CPacket(HerobrineReturns.HEROBRINE_APPEARANCE_EFFECT, this.isSilent() ? GameStateChangeS2CPacket.DEMO_OPEN_SCREEN : (int) 1.0f));
                         serverPlayerEntity.playSound(SoundEvents.ENTITY_WITHER_SHOOT, 1.0f, 1.0f);
-                        try {
-                            RapidTitle.function(serverPlayerEntity,"entity.minecraft.herobrine.chat", 1, 2, 1, 100);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
+                        new Thread(() -> {
+                            try {
+                                RapidTitle.function(serverPlayerEntity,"entity.minecraft.herobrine.chat", 1, 2, 1, 100);
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }).start();
                     }
                 });
                 this.age = 0;
