@@ -1,3 +1,5 @@
-// 1.19.4	2023-08-12T20:39:07.0247889	Herobrine Returns/Advancements
-df15e9089d9fc9c35a769acf7cc7355dad81dd83 data\minecraft\advancements\herobrinereturns\kill_herobrine.json
-b8358be264d3c18db753546c8bb8ad9da9f5ed10 data\minecraft\advancements\herobrinereturns\root.json
+// 1.19.4	2023-10-05T10:48:14.3786285	Herobrine Returns/Advancements
+b00d9914c024986261cc07aaa7c952fea0b879ad data\minecraft\advancements\herobrinereturns\summon_herobrine.json
+e290eada9fe06fcfb3a5d48a8677fea03d87e9ac data\minecraft\advancements\herobrinereturns\kill_herobrine.json
+7b6d6cb2446d80701b808fffc4ca0f580827d2a8 data\minecraft\advancements\herobrinereturns\root.json
+edad20e7a9080935c48da0526c08db834dfb79fc data\minecraft\advancements\herobrinereturns\eat_book.json

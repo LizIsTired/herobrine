@@ -1,7 +1,7 @@
 {
-  "parent": "minecraft:herobrinereturns/root",
+  "parent": "minecraft:herobrinereturns/summon_herobrine",
   "criteria": {
-    "kill_herobrine": {
+    "killed_herobrine": {
       "conditions": {
         "entity": [
           {
@@ -20,21 +20,21 @@
     "announce_to_chat": true,
     "background": "minecraft:textures/block/cherry_log.png",
     "description": {
-      "text": "...wtf dude"
+      "text": "what happens now?"
     },
     "frame": "task",
-    "hidden": false,
+    "hidden": true,
     "icon": {
-      "item": "minecraft:book"
+      "item": "minecraft:player_head"
     },
     "show_toast": true,
     "title": {
-      "text": "You...ate the book??"
+      "text": "removed herobrine"
     }
   },
   "requirements": [
     [
-      "kill_herobrine"
+      "killed_herobrine"
     ]
   ]
 }
