@@ -1,25 +1,24 @@
 package net.lizistired.herobrinereturns;
 
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.lizistired.herobrinereturns.utils.registry.networking.NetworkConstants;
 import net.lizistired.herobrinereturns.utils.registry.RegisterEntities;
 import net.lizistired.herobrinereturns.utils.registry.RegisterItems;
 import net.lizistired.herobrinereturns.utils.registry.RegisterParticles;
-import net.minecraft.block.Blocks;
+import net.lizistired.herobrinereturns.utils.registry.networking.handlers.NetworkHandler;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.loot.LootPool;
 import net.minecraft.loot.LootTables;
 import net.minecraft.loot.entry.ItemEntry;
 import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
+import net.minecraft.util.math.Vec3d;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,12 +43,16 @@ public class HerobrineReturns implements ModInitializer {
 		RegisterEntities.init();
 		RegisterItems.init();
 		RegisterParticles.init();
+		NetworkHandler.init();
 		LOGGER.info("Hello Fabric world!");
+
+
 
 
 		ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
 			minecraftServer = server;
 		});
+
 
 		LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) -> {
 			if (source.isBuiltin() && DESERT_PYRAMID_CHEST_ID.equals(id) || source.isBuiltin() && SIMPLE_DUNGEON_CHEST.equals(id)) {

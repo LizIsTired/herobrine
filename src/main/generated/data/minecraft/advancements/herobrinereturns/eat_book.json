@@ -1,0 +1,41 @@
+{
+  "parent": "minecraft:herobrinereturns/root",
+  "criteria": {
+    "eaten_book": {
+      "conditions": {
+        "item": {
+          "items": [
+            "herobrinereturns:cursed_book"
+          ]
+        }
+      },
+      "trigger": "minecraft:consume_item"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "background": "minecraft:textures/block/cherry_log.png",
+    "description": {
+      "text": "you ate the book??"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "minecraft:apple"
+    },
+    "show_toast": true,
+    "title": {
+      "text": "Eat the book."
+    }
+  },
+  "requirements": [
+    [
+      "eaten_book"
+    ]
+  ],
+  "rewards": {
+    "loot": [
+      "herobrinereturns:cursed_book"
+    ]
+  }
+}

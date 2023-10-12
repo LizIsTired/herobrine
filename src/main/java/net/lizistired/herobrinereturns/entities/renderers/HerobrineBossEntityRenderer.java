@@ -46,4 +46,9 @@ public class HerobrineBossEntityRenderer<T extends HerobrineBoss> extends MobEnt
         return TEXTURE;
     }
 
+
+    @Override
+    public void render(T mobEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
+        super.render(mobEntity, f, g, matrixStack, vertexConsumerProvider, i);
+    }
 }

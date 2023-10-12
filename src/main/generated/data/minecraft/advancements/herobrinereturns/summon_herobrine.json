@@ -1,0 +1,40 @@
+{
+  "parent": "minecraft:herobrinereturns/root",
+  "criteria": {
+    "summoned_herobrine": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:herobrine_boss"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:summoned_entity"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "background": "minecraft:textures/block/cherry_log.png",
+    "description": {
+      "text": "...run."
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "minecraft:nether_star"
+    },
+    "show_toast": true,
+    "title": {
+      "text": "Summon Him."
+    }
+  },
+  "requirements": [
+    [
+      "summoned_herobrine"
+    ]
+  ]
+}

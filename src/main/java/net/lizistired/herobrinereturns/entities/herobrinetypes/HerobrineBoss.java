@@ -1,39 +1,34 @@
 package net.lizistired.herobrinereturns.entities.herobrinetypes;
 
 import com.google.common.collect.ImmutableList;
-import net.fabricmc.loader.impl.launch.server.FabricServerLauncher;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.lizistired.herobrinereturns.HerobrineReturns;
-import net.lizistired.herobrinereturns.HerobrineReturnsServer;
+import net.lizistired.herobrinereturns.HerobrineReturnsClient;
 import net.lizistired.herobrinereturns.entities.BaseHerobrineEntity;
-import net.lizistired.herobrinereturns.items.CursedBook;
 import net.lizistired.herobrinereturns.utils.registry.RegisterEntities;
-import net.lizistired.herobrinereturns.utils.registry.RegisterItems;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.advancement.criterion.Criteria;
+import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.boss.BossBar;
 import net.minecraft.entity.boss.ServerBossBar;
-import net.minecraft.entity.boss.WitherEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.entity.mob.*;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.particle.ParticleEffect;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -41,16 +36,17 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.function.ValueLists;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.IntFunction;
-import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
+
+import static net.lizistired.herobrinereturns.HerobrineReturns.minecraftServer;
 
 public class HerobrineBoss extends BaseHerobrineEntity {
     private static final TrackedData<Integer> TRACKED_ENTITY_ID_1 = DataTracker.registerData(HerobrineBoss.class, TrackedDataHandlerRegistry.INTEGER);
@@ -109,7 +105,7 @@ public class HerobrineBoss extends BaseHerobrineEntity {
         }
         this.bossBar.setPercent(0.0f);
         this.setHealth(this.getMaxHealth());
-        HerobrineReturns.minecraftServer.getOverworld().setWeather(0, 2400, true, true);
+        minecraftServer.getOverworld().setWeather(0, 2400, true, true);
     }
 
     public State getState() {
@@ -155,6 +151,7 @@ public class HerobrineBoss extends BaseHerobrineEntity {
         if (this.spellTicks > 0) {
             --this.spellTicks;
         }
+        //deltaTick++;
     }
 
     @Override
@@ -179,6 +176,10 @@ public class HerobrineBoss extends BaseHerobrineEntity {
         if(damageSource == getDamageSources().outOfWorld()){
             return;
         }
+        for (ServerPlayerEntity serverPlayerEntity : minecraftServer.getOverworld().getNonSpectatingEntities(ServerPlayerEntity.class, this.getBoundingBox().expand(50.0))) {
+            Criteria.PLAYER_KILLED_ENTITY.trigger(serverPlayerEntity, this, damageSource);
+
+        }
     }
 
     @Override
@@ -192,7 +193,7 @@ public class HerobrineBoss extends BaseHerobrineEntity {
         //}
         if(source.isOf(DamageTypes.PLAYER_ATTACK)) {
             //HerobrineReturns.minecraftServer.getOverworld().getEntitiesByClass(DecoyHerobrineEntity.class, new Box(this.getBlockPos().add(-10, -10, -10), this.getBlockPos().add(10, 10, 10)), null).forEach(Entity::discard);
-            HerobrineReturns.minecraftServer.getOverworld().getEntitiesByType(RegisterEntities.DECOY_HEROBRINE_ENTITY, new Box(this.getBlockPos().add(-100, -100, -100), this.getBlockPos().add(100, 100, 100)), decoyHerobrineEntity -> true).forEach(Entity::discard);
+            minecraftServer.getOverworld().getEntitiesByType(RegisterEntities.DECOY_HEROBRINE_ENTITY, new Box(this.getBlockPos().add(-100, -100, -100), this.getBlockPos().add(100, 100, 100)), decoyHerobrineEntity -> true).forEach(Entity::discard);
             //for (int i = 0; i < 6; i++) {
             //    if (HerobrineReturns.minecraftServer.getOverworld().getEntity(decoyIDs[i]) != null){
             //    HerobrineReturns.minecraftServer.getOverworld().getEntity(decoyIDs[i])
@@ -234,8 +235,9 @@ public class HerobrineBoss extends BaseHerobrineEntity {
 
     @Override
     protected void initCustomGoals() {
-        //this.goalSelector.add(1, new MeleeAttackGoal(this, 0.4f, true));
-        this.goalSelector.add(1, new LightningAttack(this, 50, 3));
+        this.goalSelector.add(1, new MeleeAttackGoal(this, 0.4f, true));
+        //this.goalSelector.add(1, new LightningAttack(this, 50, 3));
+        this.goalSelector.add(2, new LongLightning(this, 200, 100));
         //this.goalSelector.add(2, new DecoyAttack(this, 50, 3));
         this.targetSelector.add(1, new ActiveTargetGoal<PlayerEntity>((MobEntity) this, PlayerEntity.class, false));
     }
@@ -247,11 +249,11 @@ public class HerobrineBoss extends BaseHerobrineEntity {
     }
 
     class LightningAttack extends Goal {
-        private HerobrineBoss herobrineBoss1;
+        private final HerobrineBoss herobrineBoss1;
         private int ticksSinceAttackStarted;
         private int ticksSinceAttackEnded;
-        private int attackDowntime = 50;
-        private int attackLength = 3;
+        private int attackDowntime;
+        private int attackLength;
         @Nullable
         private LivingEntity target;
 
@@ -281,13 +283,14 @@ public class HerobrineBoss extends BaseHerobrineEntity {
         }
 
         public void start(){
+            herobrineBoss1.setNoGravity(true);
             this.ticksSinceAttackStarted = 0;
             this.ticksSinceAttackEnded = 0;
             HerobrineBoss.this.setSpell(Spell.SUMMON_VEX);
-
-        }
+            }
 
         public boolean canStop(){
+            HerobrineReturns.LOGGER.info("canStop");
             return ticksSinceAttackStarted > this.attackLength;
         }
 
@@ -305,18 +308,108 @@ public class HerobrineBoss extends BaseHerobrineEntity {
 
 
             if(ticksSinceAttackStarted < this.attackLength) {
+                HerobrineBoss.this.setSpell(Spell.SUMMON_VEX);
                 double d = herobrineBoss1.getX() + (Random.create().nextDouble() - 0.5) * 16.0;
                 double e = herobrineBoss1.getY() + (double) (Random.create().nextInt(5));
                 double f = herobrineBoss1.getZ() + (Random.create().nextDouble() - 0.5) * 16.0;
                 LightningEntity lightning = new LightningEntity(EntityType.LIGHTNING_BOLT, target.world); // Create the lightning bolt
                 lightning.setPosition(d, e, f); // Set its position. This will make the lightning bolt strike the player (probably not what you want)
                 target.world.spawnEntity(lightning); // Spawn the lightning entity
+                ticksSinceAttackStarted++;
 
                 //DisplayEntity.ItemDisplayEntity itemDisplayEntity = new DisplayEntity.ItemDisplayEntity(EntityType.ITEM_DISPLAY, target.world);
-            } if (this.ticksSinceAttackEnded > this.attackDowntime) {
+            } else {
+                stop();
+            }
+            if (this.ticksSinceAttackEnded > this.attackDowntime) {
                 this.ticksSinceAttackEnded = 0;
                 this.ticksSinceAttackStarted = 0;
+            }
+            ticksSinceAttackEnded++;
+            //super.tick();
+            //get the position of the item entity and set the position of the Herobrine boss to that position
+            //this.herobrineBoss.world.spawnEntity((EntityType.LIGHTNING_BOLT.create(this.herobrineBoss.world)).setPos(target.getX(), target.getY(), target.getZ()));
+        }
+    }
+
+    class LongLightning extends Goal {
+        private final HerobrineBoss herobrineBoss1;
+        private int ticksSinceAttackStarted;
+        private int ticksSinceAttackEnded;
+        private int attackDowntime;
+        private int attackLength;
+        @Nullable
+        private LivingEntity target;
+
+        public LongLightning(HerobrineBoss herobrineBoss1, int attackDowntime, int attackLength) {
+            this.herobrineBoss1 = herobrineBoss1;
+            this.target = herobrineBoss1.getTarget();
+            this.attackDowntime = attackDowntime;
+            this.attackLength = attackLength;
+        }
+
+        protected int getSpellTicks() {
+            return 40;
+        }
+
+        protected int startTimeDelay() {
+            return 100;
+        }
+        @Override
+        public boolean canStart() {
+            this.target = this.herobrineBoss1.getTarget();
+            if (!(this.target instanceof PlayerEntity)) {
+                return false;
+            }
+            double d = this.target.squaredDistanceTo(this.herobrineBoss1);
+            return !(d > (256 * 10.0));
+            //this.herobrineBoss.isPlayerStaring((PlayerEntity) this.target);
+        }
+
+        public void start(){
+            herobrineBoss1.setNoGravity(true);
+            this.ticksSinceAttackStarted = 0;
+            this.ticksSinceAttackEnded = 0;
+            HerobrineBoss.this.setSpell(Spell.SUMMON_VEX);
+
+        }
+
+        public boolean canStop(){
+            HerobrineReturns.LOGGER.info("canStop");
+            return ticksSinceAttackStarted > this.attackLength;
+        }
+
+        public void stop(){
+            HerobrineBoss.this.setSpell(Spell.NONE);
+        }
+
+        @Override
+        public void tick(){
+            if (target.world.isClient()) {
+                return;
+            }
+            //set item display entity to display item diamond sword
+
+
+
+            if(ticksSinceAttackStarted < this.attackLength) {
+                //setPosition(herobrineBoss1.getX(), MathHelper.clampedLerp(target.getY(), target.getY() + 15d, HerobrineReturnsClient.context.tickDelta() * 1), herobrineBoss1.getZ());
+                HerobrineBoss.this.setSpell(Spell.SUMMON_VEX);
+                double d = herobrineBoss1.getX() + (Random.create().nextDouble() - 0.5) * 16.0;
+                double e = herobrineBoss1.getY() + (double) (Random.create().nextInt(5));
+                double f = herobrineBoss1.getZ() + (Random.create().nextDouble() - 0.5) * 16.0;
+                LightningEntity lightning = new LightningEntity(EntityType.LIGHTNING_BOLT, target.world); // Create the lightning bolt
+                lightning.setPosition(d, e, f); // Set its position. This will make the lightning bolt strike the player (probably not what you want)
+                target.world.spawnEntity(lightning); // Spawn the lightning entity
+                ticksSinceAttackStarted++;
+
+                //DisplayEntity.ItemDisplayEntity itemDisplayEntity = new DisplayEntity.ItemDisplayEntity(EntityType.ITEM_DISPLAY, target.world);
+            } else {
                 stop();
+            }
+            if (this.ticksSinceAttackEnded > this.attackDowntime) {
+                this.ticksSinceAttackEnded = 0;
+                this.ticksSinceAttackStarted = 0;
             }
             ticksSinceAttackEnded++;
             //super.tick();
@@ -361,6 +454,7 @@ public class HerobrineBoss extends BaseHerobrineEntity {
             this.ticksSinceAttackEnded = 0;
             herobrineBoss.equipStack(EquipmentSlot.MAINHAND, Items.DIAMOND_SWORD.getDefaultStack());
             target.getWorld().playSound(target, BlockPos.ofFloored(target.getPos()), SoundEvents.ITEM_ARMOR_EQUIP_DIAMOND, SoundCategory.HOSTILE, 1.0f, 1.0f);
+            herobrineBoss.world.addParticle(ParticleTypes.ELECTRIC_SPARK, herobrineBoss.getX(), herobrineBoss.getY(), herobrineBoss.getZ(), 0.0D, 0.0D, 0.0D);
         }
 
         @Override
@@ -384,14 +478,14 @@ public class HerobrineBoss extends BaseHerobrineEntity {
                 return;
             }
             if(ticksSinceAttackStarted < this.attackLength) {
-                this.ticksSinceAttackStarted++;
-                super.tick();
-            } if (this.ticksSinceAttackEnded > this.attackDowntime) {
-                this.ticksSinceAttackEnded = 0;
-                this.ticksSinceAttackStarted = 0;
+                ticksSinceAttackStarted++;
+            } else {
                 stop();
             }
-            ticksSinceAttackEnded++;
+            if (this.ticksSinceAttackEnded > this.attackDowntime) {
+                this.ticksSinceAttackEnded = 0;
+                this.ticksSinceAttackStarted = 0;
+            }
             super.tick();
         }
     }
@@ -473,8 +567,8 @@ public class HerobrineBoss extends BaseHerobrineEntity {
         @Override
         public void stop(){
             HerobrineBoss.this.setSpell(Spell.NONE);
-            if (!HerobrineReturns.minecraftServer.getOverworld().getEntitiesByType(RegisterEntities.DECOY_HEROBRINE_ENTITY, new Box(this.herobrineBoss.getBlockPos().add(-100, -100, -100), this.herobrineBoss.getBlockPos().add(100, 100, 100)), decoyHerobrineEntity -> true).isEmpty()){
-                HerobrineReturns.minecraftServer.getOverworld().getEntitiesByType(RegisterEntities.DECOY_HEROBRINE_ENTITY, new Box(this.herobrineBoss.getBlockPos().add(-100, -100, -100), this.herobrineBoss.getBlockPos().add(100, 100, 100)), decoyHerobrineEntity -> true).forEach(Entity::discard);
+            if (!minecraftServer.getOverworld().getEntitiesByType(RegisterEntities.DECOY_HEROBRINE_ENTITY, new Box(this.herobrineBoss.getBlockPos().add(-100, -100, -100), this.herobrineBoss.getBlockPos().add(100, 100, 100)), decoyHerobrineEntity -> true).isEmpty()){
+                minecraftServer.getOverworld().getEntitiesByType(RegisterEntities.DECOY_HEROBRINE_ENTITY, new Box(this.herobrineBoss.getBlockPos().add(-100, -100, -100), this.herobrineBoss.getBlockPos().add(100, 100, 100)), decoyHerobrineEntity -> true).forEach(Entity::discard);
 
             }
             //for (int i = 0; i < 7; i++) {
@@ -492,7 +586,7 @@ public class HerobrineBoss extends BaseHerobrineEntity {
         boolean areDecoysAlive(UUID[] array) {
                 if (array.length == 0) {
                     for (int i = 0; i < array.length; i++) {
-                        if ((HerobrineReturns.minecraftServer.getOverworld().getEntity(array[i]) == null)) {
+                        if ((minecraftServer.getOverworld().getEntity(array[i]) == null)) {
                             decoyAlive[i] = Boolean.TRUE;
                             HerobrineReturns.LOGGER.info(String.valueOf(new ArrayList<>(List.of(array))));
                         }

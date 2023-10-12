@@ -8,8 +8,10 @@
   "client": [
     "ClientPlayNetworkHandlerAccessor",
     "ClientPlayNetworkHandlerMixin",
+    "ItemMixin",
     "ScreenshotMixin",
-    "ItemMixin"
+    "WorldRendererAccessor",
+    "WorldRendererInvoker"
   ],
   "server": [
     "ItemMixin"

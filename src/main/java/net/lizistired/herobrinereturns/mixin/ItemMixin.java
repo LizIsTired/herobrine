@@ -5,6 +5,7 @@ import net.lizistired.herobrinereturns.HerobrineReturnsServer;
 import net.lizistired.herobrinereturns.entities.herobrinetypes.HerobrineBoss;
 import net.lizistired.herobrinereturns.utils.registry.RegisterEntities;
 import net.lizistired.herobrinereturns.utils.registry.RegisterItems;
+import net.minecraft.advancement.criterion.Criteria;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.CarvedPumpkinBlock;
 import net.minecraft.block.pattern.BlockPattern;
@@ -19,6 +20,7 @@ import net.minecraft.predicate.block.BlockPredicate;
 import net.minecraft.predicate.block.BlockStatePredicate;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
@@ -55,14 +57,18 @@ public abstract class ItemMixin {
             if (source.isIn(DamageTypeTags.IS_FIRE)) {
                 BlockPattern.Result result = getHerobrineShrinePattern().searchAround((ServerWorld) minecraftServer.getWorld(World.OVERWORLD), ((ItemEntity) (Object) this).getBlockPos());
                 if (result == null) {
+                    cir.setReturnValue(false);
                 } else {
-                    CarvedPumpkinBlock.breakPatternBlocks((ServerWorld) minecraftServer.getWorld(World.OVERWORLD), result);
+                    CarvedPumpkinBlock.breakPatternBlocks(MinecraftClient.getInstance().world, result);
                     HerobrineBoss herobrineBoss = new HerobrineBoss(RegisterEntities.HEROBRINE_BOSS_ENTITY_TYPE, minecraftServer.getOverworld());
                     //get the position of the item entity and set the position of the Herobrine boss to that position
                     herobrineBoss.setPosition(((ItemEntity) (Object) this).getBlockPos().toCenterPos());
-                    minecraftServer.getOverworld().spawnEntity(herobrineBoss);
+                    for (ServerPlayerEntity serverPlayerEntity : minecraftServer.getOverworld().getNonSpectatingEntities(ServerPlayerEntity.class, herobrineBoss.getBoundingBox().expand(50.0))) {
+                        Criteria.SUMMONED_ENTITY.trigger(serverPlayerEntity, herobrineBoss);
+                    }
                     ((ItemEntity) (Object) this).discard();
-                    CarvedPumpkinBlock.updatePatternBlocks((ServerWorld)minecraftServer.getWorld(World.OVERWORLD), result);
+                    minecraftServer.getOverworld().spawnEntity(herobrineBoss);
+                    CarvedPumpkinBlock.updatePatternBlocks(MinecraftClient.getInstance().world, result);
                 }
                 }
             }

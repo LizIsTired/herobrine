@@ -3,7 +3,11 @@ package net.lizistired.herobrinereturns.entities.herobrinetypes;
 import net.lizistired.herobrinereturns.HerobrineReturns;
 import net.lizistired.herobrinereturns.entities.BaseHerobrineEntity;
 import net.lizistired.herobrinereturns.utils.misc.RapidTitle;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LightningEntity;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.LookAtEntityGoal;
 import net.minecraft.entity.ai.goal.MeleeAttackGoal;
@@ -18,17 +22,24 @@ import net.minecraft.entity.mob.Angerable;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;
 import net.minecraft.network.packet.s2c.play.TitleFadeS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.LocalDifficulty;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
+
+import static net.lizistired.herobrinereturns.HerobrineReturns.minecraftServer;
 
 public class DecoyHerobrineEntity extends BaseHerobrineEntity implements Angerable {
 
@@ -65,7 +76,13 @@ public class DecoyHerobrineEntity extends BaseHerobrineEntity implements Angerab
         //    //}
         //    //return false;
         //}
+        this.discard();
         return super.damage(source, amount);
+    }
+
+    @Override
+    public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData, @Nullable NbtCompound entityNbt) {
+        return entityData;
     }
 
     //@Override

@@ -1,16 +1,7 @@
 package net.lizistired.herobrinereturns;
 
 import net.fabricmc.api.DedicatedServerModInitializer;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
-import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
-
-import net.lizistired.herobrinereturns.utils.registry.RegisterEntities;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.lizistired.herobrinereturns.utils.registry.networking.handlers.NetworkHandler;
 
 public class HerobrineReturnsServer implements DedicatedServerModInitializer {
 
@@ -23,7 +14,6 @@ public class HerobrineReturnsServer implements DedicatedServerModInitializer {
 
 	@Override
 	public void onInitializeServer() {
-
-
+		NetworkHandler.init();
 	}
 }
