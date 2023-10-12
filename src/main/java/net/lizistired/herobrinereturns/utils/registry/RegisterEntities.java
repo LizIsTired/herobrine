@@ -3,9 +3,7 @@ package net.lizistired.herobrinereturns.utils.registry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.lizistired.herobrinereturns.entities.BaseHerobrineEntity;
-import net.lizistired.herobrinereturns.entities.herobrinetypes.DecoyHerobrineEntity;
-import net.lizistired.herobrinereturns.entities.herobrinetypes.HerobrineBoss;
-import net.lizistired.herobrinereturns.entities.herobrinetypes.StandardHerobrineEntity;
+import net.lizistired.herobrinereturns.entities.herobrinetypes.*;
 import net.lizistired.herobrinereturns.entities.models.HerobrineDecoyEntityModel;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
@@ -38,6 +36,14 @@ public final class RegisterEntities {
                     .build()
     );
 
+    public static final EntityType<HerobrineCow>
+            HEROBRINE_COW_ENTITY = Registry.register(Registries.ENTITY_TYPE, new Identifier("minecraft", "herobrine_cow"),
+            FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, HerobrineCow::new)
+                    .dimensions(EntityDimensions.fixed(0.75f, 0.75f))
+                    .fireImmune()
+                    .build()
+    );
+
 
 
     //public static final EntityType<HerobrineShrine>
@@ -49,19 +55,20 @@ public final class RegisterEntities {
     //);
 
 
-    /*public static final EntityType<ScaryHerobrineEntity>
+    public static final EntityType<ScaryHerobrineEntity>
             SCARY_HEROBRINE = Registry.register(Registries.ENTITY_TYPE, new Identifier("minecraft", "scary_herobrine"),
             FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, ScaryHerobrineEntity::new)
-                    .dimensions(EntityDimensions.fixed(0.75f, 2f))
+                    .dimensions(EntityDimensions.fixed(0.9f, 1.3f))
                     .fireImmune()
                     .build()
-    );*/
+    );
 
 
     public static void init() {
         FabricDefaultAttributeRegistry.register(STANDARD_HEROBRINE_ENTITY, BaseHerobrineEntity.createHerobrineAttributes());
         FabricDefaultAttributeRegistry.register(HEROBRINE_BOSS_ENTITY_TYPE, HerobrineBoss.createHerobrineAttributes());
         FabricDefaultAttributeRegistry.register(DECOY_HEROBRINE_ENTITY, DecoyHerobrineEntity.createHerobrineAttributes());
-        //FabricDefaultAttributeRegistry.register(SCARY_HEROBRINE, ScaryHerobrineEntity.createHerobrineAttributes());
+        FabricDefaultAttributeRegistry.register(SCARY_HEROBRINE, BaseHerobrineEntity.createHerobrineAttributes());
+        FabricDefaultAttributeRegistry.register(HEROBRINE_COW_ENTITY, BaseHerobrineEntity.createHerobrineAttributes());
     }
 }
